@@ -1,7 +1,7 @@
 
 import './dashboard.css';
 
-export default function SystemDashboard({ metrics, onLogout, setPage }) {
+export default function SystemDashboard({ metrics, apiBase, onLogout, setPage }) {
   return (
     <div className="dashboard-bg">
       <header className="dashboard-header">

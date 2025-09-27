@@ -43,7 +43,7 @@ export default function App() {
   if (page === 'dashboard') {
     return (
       <>
-        <SystemDashboard metrics={metrics} onLogout={() => setLoggedIn(false)} setPage={setPage} />
+        <SystemDashboard metrics={metrics} apiBase={API_BASE} onLogout={() => setLoggedIn(false)} setPage={setPage} />
         {err && <p style={{ color: 'crimson', marginTop: 12, textAlign: 'center' }}>API error: {err}</p>}
       </>
     );

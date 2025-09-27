@@ -39,5 +39,5 @@ echo "  $APP_DIR/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000"
 
 # Optional: start immediately if you pass --start
 if [[ "${1:-}" == "--start" ]]; then
-  exec "$APP_DIR/.venv/bin/uvicorn" app.main:app --host 0.0.0.0 --port 8000
+  exec "$APP_DIR/.venv/bin/uvicorn" app.main:app --host 0.0.0.0 --port 8000 --reload
 fi
