@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Shows undervoltage/throttling state in human form
+set -euo pipefail
+if ! command -v vcgencmd >/dev/null; then
+  echo "vcgencmd not found"; exit 1
+fi
+raw=$(vcgencmd get_throttled | cut -d= -f2)
+printf "Raw: %s\n" "$raw"
+v=$((16#${raw#0x}))
+explain() {
+  bit=$1; msg=$2
+  (( v & (1<<bit) )) && echo "• $msg"
+}
+echo "Now / Since boot:"
+explain 0  "Under-voltage NOW"
+explain 1  "ARM frequency capped NOW"
+explain 2  "Currently throttled"
+explain 3  "Soft temp limit active NOW"
+explain 16 "Under-voltage occurred"
+explain 17 "ARM freq capped occurred"
+explain 18 "Throttling occurred"
+explain 19 "Soft temp limit occurred"

@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# HobyPi health snapshot (one-shot)
+set -euo pipefail
+
+printf "=== HobyPi Health @ %s ===\n" "$(date)"
+
+# Temp / throttling / clock (if available)
+if command -v vcgencmd >/dev/null 2>&1; then
+  vcgencmd measure_temp || true
+  vcgencmd get_throttled || true
+  vcgencmd measure_clock arm || true
+fi
+
+# CPU usage (read /proc/stat twice)
+cpu_usage() {
+  # first read
+  read -r _ u1 n1 s1 i1 w1 irq1 sirq1 st1 g1 gn1 < /proc/stat
+  idle1=$((i1 + w1))
+  non1=$((u1 + n1 + s1 + irq1 + sirq1 + st1))
+  total1=$((idle1 + non1))
+  sleep 0.5
+  # second read
+  read -r _ u2 n2 s2 i2 w2 irq2 sirq2 st2 g2 gn2 < /proc/stat
+  idle2=$((i2 + w2))
+  non2=$((u2 + n2 + s2 + irq2 + sirq2 + st2))
+  total2=$((idle2 + non2))
+
+  totald=$((total2 - total1))
+  idled=$((idle2 - idle1))
+
+  if [ "$totald" -gt 0 ]; then
+    # (totald - idled) / totald * 100
+    awk -v td="$totald" -v id="$idled" 'BEGIN{printf "%.1f%%\n", (td-id)*100/td}'
+  else
+    echo "0.0%"
+  fi
+}
+
+printf "CPU %% : %s\n" "$(cpu_usage)"
+
+echo "Uptime: $(uptime -p)"
+echo "Load  : $(cut -d ' ' -f1-3 /proc/loadavg)"
+echo "Mem   :"; free -h
+echo "Swap  :"; (swapon --show 2>/dev/null || echo "(no swap)")
+echo "Disk  :"; df -h /

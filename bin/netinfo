@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+echo "Hostname: $(hostname)"
+echo "IPs     : $(hostname -I)"
+command -v iwgetid >/dev/null && echo "SSID    : $(iwgetid -r)" || true
+iwconfig 2>/dev/null | awk '/wlan0/ {print "\n" $0} /Link Quality|Signal level/ {print $0}'

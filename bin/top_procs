@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+echo "Top CPU:"
+ps -eo pid,comm,%cpu,%mem --sort=-%cpu | head -n 10
+echo
+echo "Top MEM:"
+ps -eo pid,comm,%mem,%cpu --sort=-%mem | head -n 10
