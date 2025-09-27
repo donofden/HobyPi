@@ -1,0 +1,145 @@
+/* CameraSystem module scoped styles */
+.camera-bg {
+  min-height: 100vh;
+  background: var(--background, #f8fafc);
+  color: #222;
+  font-family: 'Inter', sans-serif;
+}
+.camera-header {
+  display: flex;
+  align-items: center;
+  padding: 1rem 2rem 0 2rem;
+  font-size: 2rem;
+  font-weight: 600;
+  background: var(--card, #fff);
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+.camera-title {
+  margin-left: 8px;
+}
+.camera-back {
+  background: var(--primary, #60a5fa);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 8px;
+}
+.camera-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+.camera-stats {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 24px;
+}
+.camera-stat {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  box-shadow: 0 2px 8px #0002;
+}
+.camera-viewmode {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.camera-viewmode button {
+  background: #232326;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+.camera-viewmode .active {
+  background: #3b82f6;
+  color: #fff;
+}
+.camera-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+}
+.camera-card {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px #0002;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+.camera-card:hover {
+  box-shadow: 0 4px 16px #0004;
+}
+.camera-img {
+  width: 100%;
+  max-width: 220px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: #e5e7eb;
+}
+.camera-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.camera-location {
+  font-size: 0.95rem;
+  color: #aaa;
+  margin-bottom: 4px;
+}
+.camera-status {
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+.camera-info {
+  font-size: 0.9rem;
+  color: #bbb;
+  margin-bottom: 8px;
+}
+.camera-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.camera-controls button {
+  background: var(--primary, #60a5fa);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.camera-controls button:disabled {
+  background: #555;
+  color: #aaa;
+  cursor: not-allowed;
+}
+.camera-single {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 320px;
+}
+.camera-card-single {
+  max-width: 400px;
+  width: 100%;
+}

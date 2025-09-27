@@ -1,0 +1,67 @@
+/* bills.css */
+.bills-bg {
+  min-height: 100vh;
+  background: var(--background, #f8fafc);
+}
+.bills-header {
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+}
+.bills-title {
+  font-weight: bold;
+  font-size: 1.25rem;
+  margin-left: 0.5rem;
+}
+.bills-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+.bills-section {
+  margin-bottom: 2rem;
+}
+.bills-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 1rem;
+}
+.bills-card {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+.bills-card-title {
+  font-weight: bold;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+.bills-card-value {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+.bills-card-change {
+  font-size: 0.95rem;
+  color: var(--muted-foreground, #64748b);
+}
+.bills-summary {
+  font-size: 1rem;
+  color: var(--muted-foreground, #64748b);
+  margin-top: 1rem;
+}
+.bills-back {
+  background: var(--primary, #60a5fa);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}

@@ -1,0 +1,208 @@
+/* TodoListModule module scoped styles */
+.todo-bg {
+  min-height: 100vh;
+  background: var(--background, #f8fafc);
+  color: #222;
+  font-family: 'Inter', sans-serif;
+}
+.todo-header {
+  display: flex;
+  align-items: center;
+  padding: 1rem 2rem 0 2rem;
+  font-size: 2rem;
+  font-weight: 600;
+  background: var(--card, #fff);
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+.todo-title {
+  margin-left: 8px;
+}
+.todo-back {
+  background: var(--primary, #60a5fa);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 8px;
+}
+.todo-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+.todo-stats {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 24px;
+}
+.todo-stat {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  box-shadow: 0 2px 8px #0002;
+}
+.todo-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  align-items: center;
+}
+.todo-controls select,
+.todo-controls button {
+  background: #232326;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+.todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.todo-card {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px #0002;
+  padding: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.todo-card.completed {
+  opacity: 0.6;
+}
+.todo-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.todo-title-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.todo-title-text.completed {
+  text-decoration: line-through;
+  color: #bbb;
+}
+.todo-priority {
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-right: 8px;
+  display: inline-block;
+}
+.todo-priority-high { background: #ef4444; color: #fff; }
+.todo-priority-medium { background: #f59e42; color: #fff; }
+.todo-priority-low { background: #22c55e; color: #fff; }
+.todo-category {
+  font-size: 0.95rem;
+  color: #a78bfa;
+  margin-right: 8px;
+}
+.todo-overdue {
+  background: #ef4444;
+  color: #fff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.95rem;
+  margin-right: 8px;
+}
+.todo-desc {
+  font-size: 0.95rem;
+  color: #bbb;
+}
+.todo-created {
+  font-size: 0.9rem;
+  color: #888;
+}
+.todo-due {
+  font-size: 0.9rem;
+  color: #888;
+}
+.todo-due-overdue {
+  font-size: 0.9rem;
+  color: #ef4444;
+}
+.todo-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.todo-actions button {
+  background: var(--primary, #60a5fa);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.todo-empty {
+  background: #232326;
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  color: #bbb;
+  font-size: 1.1rem;
+}
+.todo-dialog-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #000a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.todo-dialog {
+  background: #232326;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px #0006;
+  padding: 32px;
+  min-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.todo-dialog input,
+.todo-dialog textarea,
+.todo-dialog select {
+  background: #18181b;
+  color: #fff;
+  border: 1px solid #222;
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+.todo-dialog-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+.todo-dialog-actions button {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+.todo-dialog-actions button:first-child {
+  background: #555;
+  color: #fff;
+}

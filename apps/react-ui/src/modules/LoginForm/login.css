@@ -1,0 +1,57 @@
+/* login.css */
+.login-bg {
+  min-height: 100vh;
+  background: var(--background, #f8fafc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.login-card {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 1rem;
+  padding: 2rem 2.5rem;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+  min-width: 320px;
+}
+.login-title {
+  font-weight: bold;
+  font-size: 1.5rem;
+  margin-top: 0.5rem;
+}
+.login-muted {
+  color: var(--muted-foreground, #64748b);
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+.login-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border, #e5e7eb);
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+.login-btn {
+  width: 100%;
+  background: var(--primary, #60a5fa);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+.login-error {
+  color: #ef4444;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+.login-demo {
+  margin-top: 1.5rem;
+  color: var(--muted-foreground, #64748b);
+  font-size: 0.95rem;
+  text-align: center;
+}

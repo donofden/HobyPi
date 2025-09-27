@@ -162,6 +162,7 @@ kill-api-port:
 	@$(call free_port,$(API_PORT))
 
 kill-ports: kill-react-port kill-api-port
+	kill_ports
 
 kill-port:
 	@test -n "$(PORT)" || { echo "Usage: make kill-port PORT=<number>"; exit 1; }

@@ -1,0 +1,25 @@
+#!/bin/sh
+# Kill anything listening on given TCP ports (defaults: 3000 8000).
+ports="$@"; [ -n "$ports" ] || ports="3000 8000"
+
+for port in $ports; do
+  echo "[kill_ports] clearing :$port"
+  if command -v fuser >/dev/null 2>&1; then
+    fuser -k -TERM ${port}/tcp 2>/dev/null || true
+    sleep 1
+    fuser -k -KILL ${port}/tcp 2>/dev/null || true
+    continue
+  fi
+  # Fallback: ss -> PID -> kill process group (PGID) then PID
+  pids=$(ss -ltnp 2>/dev/null | awk -v p="$port" 'match($4,":"p"$"){if (match($0,/pid=([0-9]+)/,m)) print m[1]}' | sort -u)
+  for pid in $pids; do
+    pgid=$(ps -o pgid= -p "$pid" 2>/dev/null | tr -d ' ')
+    if [ -n "$pgid" ]; then
+      kill -TERM -"$pgid" 2>/dev/null || true; sleep 1; kill -KILL -"$pgid" 2>/dev/null || true
+      echo "  killed PGID $pgid (from PID $pid)"
+    else
+      kill -TERM "$pid" 2>/dev/null || true; sleep 1; kill -KILL "$pid" 2>/dev/null || true
+      echo "  killed PID $pid"
+    fi
+  done
+done

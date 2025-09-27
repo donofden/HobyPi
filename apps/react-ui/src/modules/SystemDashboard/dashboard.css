@@ -1,0 +1,45 @@
+/* dashboard.css */
+.dashboard-bg {
+  min-height: 100vh;
+  background: var(--background, #f8fafc);
+}
+.dashboard-header {
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.dashboard-title {
+  font-weight: bold;
+  font-size: 1.25rem;
+  margin-left: 0.5rem;
+}
+.dashboard-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+.dashboard-card {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+.dashboard-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.dashboard-online {
+  background: #22c55e;
+  color: #fff;
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.95rem;
+}
+.dashboard-throttle {
+  margin-top: 1rem;
+}
