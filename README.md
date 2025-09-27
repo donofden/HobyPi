@@ -26,24 +26,73 @@ Start as a playground for coding hobbies → grow into a **home-control center**
 
 ```
 HobyPi/
-├─ frontend/        # React (Vite) frontend
-├─ backend/         # FastAPI backend
-├─ docker-compose.yml
-├─ .env.example     # Environment variables template
-└─ LICENSE
+├─ README.md
+├─ bootstrap.sh
+├─ bin/
+│  ├─ check_temp
+│  └─ hobypi-update
+├─ services/
+│  ├─ fastapi.service
+│  └─ react.service
+├─ apps/
+│  ├─ fastapi-app/
+│  └─ react-ui/
+└─ .env.example
 ```
 
 ---
 
-## 🔧 Getting Started
+## Getting Started
 
-### 1. Clone repo
+### First-time Setup on a New Pi
+
+### Clone repo
 ```bash
-git clone https://github.com/<your-username>/HobyPi.git
-cd HobyPi
+# 1) Clone to your home (~/hobypi)
+git clone https://github.com/<you>/hobypi.git ~/hobypi
+cd ~/hobypi
+
+# 2) Make scripts executable
+chmod +x bootstrap.sh bin/*
+
+# 3) Run bootstrap (installs deps + global commands)
+./bootstrap.sh
+```
+This will:
+- Update & upgrade the system  
+- Install essentials (git, curl, vim, htop, bc, etc.)  
+- Install helper scripts globally (`check_temp`)
+
+## 🔧 Making HobyPi Commands Available Everywhere
+
+By default, the helper scripts (like `check_temp`) live in the `bin/` folder of this repo.  
+To run them from **any directory**, add `HobyPi/bin` to your shell `PATH`.
+
+### 1. Open your shell config
+```bash
+nano ~/.bashrc
 ```
 
-### 2. Configure environment
+### 2. Add this line at the end of the file
+```bash
+export PATH="$HOME/HobyPi/bin:$PATH"
+```
+
+### 3. Reload your shell
+```bash
+source ~/.bashrc
+```
+
+### 4. Test it
+```bash
+check_temp
+```
+
+If everything is set up correctly, you should see the Raspberry Pi’s temperature printed out.
+
+---
+
+## Configure environment
 Copy `.env.example` → `.env` and set values:
 ```env
 POSTGRES_USER=app
@@ -54,31 +103,10 @@ ACCESS_TOKEN_EXPIRE_MINUTES=60
 DATABASE_URL=postgresql+psycopg://app:app_password@db:5432/appdb
 ```
 
-### 3. Run with Docker
-```bash
-docker compose up -d --build
-```
-
-### 4. Access services
-- Frontend (React UI) → [http://localhost:80](http://localhost:80)  
-- Backend API (FastAPI) → [http://localhost:8000/docs](http://localhost:8000/docs)  
-- Postgres DB → Port **5432**  
-
----
-
-## 🛡️ Authentication
-
-- User login/signup with **JWT tokens**  
-- Role-based access (admin / user)  
-- Claims-based permissions (e.g., `users.read`, `users.write`)  
-- `/api/auth/me` → Get current user info  
-
----
-
 ## 🗺️ Roadmap
 
-- [x] Base stack: React + FastAPI + Postgres  
-- [x] JWT Authentication with roles/claims  
+- [ ] Base stack: React + FastAPI + Postgres  
+- [ ] JWT Authentication with roles/claims  
 - [ ] IoT device integration (sensors, switches)  
 - [ ] Smart home dashboards  
 - [ ] Remote access with HTTPS + mobile app  

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Continuous Raspberry Pi Temperature Monitor
+
+echo "📟 Raspberry Pi Temperature Monitor (press CTRL+C to stop)"
+echo "---------------------------------------------------------"
+
+while true; do
+    if command -v vcgencmd >/dev/null 2>&1; then
+        vcgencmd measure_temp
+    else
+        t=$(cat /sys/class/thermal/thermal_zone0/temp)
+        awk -v m="$t" 'BEGIN { printf "temp=%.1f'\''C\n", m/1000 }'
+    fi
+    sleep 2
+done
