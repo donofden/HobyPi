@@ -27,9 +27,8 @@ export default function LoginForm({ onLogin }) {
     <div className="login-bg">
       <div className="login-card">
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <img src="/HobyPi.png" alt="HobyPi logo" width={48} height={48} />
-          <h2 className="login-title">HobyPi</h2>
-          <div className="login-muted">Home Control & Automation System</div>
+          <img src="/HobyPi.png" alt="HobyPi logo" width={200} height={200} />
+          <div className="login-muted">RaspberryPI System</div>
         </div>
         <form onSubmit={handleSubmit}>
           <div>
