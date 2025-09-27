@@ -1,13 +1,18 @@
 # HobyPi
-🛠️ HobyPi — A Raspberry Pi powered home-control stack with React, FastAPI, and Postgres.
-# 🛠️ HobyPi
+🛠️ HobyPi — A Raspberry Pi powered home-control (to-do) stack with React, FastAPI, and Postgres.
+
+<p align="center">
+  <img src="apps/react-ui/HobyPi.png" alt="HobyPi" width="128">
+</p>
+
+# HobyPi
 
 > A Raspberry Pi powered home-control stack with **React**, **FastAPI**, **PostgreSQL**, and **Docker**.  
 > Built as a hobby project, evolving into a complete **home automation & control hub**.
 
 ---
 
-## 🚀 Overview
+## Overview
 
 **HobyPi** turns your Raspberry Pi into a full-stack server for experiments, learning, and home automation.  
 It combines:
@@ -22,7 +27,7 @@ Start as a playground for coding hobbies → grow into a **home-control center**
 
 ---
 
-## 📦 Project Structure
+## Project Structure
 
 ```
 HobyPi/
@@ -55,7 +60,7 @@ git clone https://github.com/<you>/hobypi.git ~/hobypi
 cd ~/hobypi
 
 # 2) Make scripts executable
-chmod +x bootstrap.sh bin/*
+chmod +x bootstrap.sh bootstrap-react-ui.sh bootstrap-fastapi.sh bin/*
 
 # 3) Run bootstrap (installs deps + global commands)
 ./bootstrap.sh
