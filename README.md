@@ -26,18 +26,20 @@ Start as a playground for coding hobbies → grow into a **home-control center**
 
 ```
 HobyPi/
-├─ README.md
-├─ bootstrap.sh
-├─ bin/
-│  ├─ check_temp
-│  └─ hobypi-update
-├─ services/
-│  ├─ fastapi.service
-│  └─ react.service
-├─ apps/
-│  ├─ fastapi-app/
-│  └─ react-ui/
-└─ .env.example
+├── apps
+├── bin
+│   ├── check_temp
+│   ├── docker_clean
+│   ├── health
+│   ├── netinfo
+│   ├── ports
+│   ├── throttle_status
+│   ├── top_procs
+│   └── update_all
+├── bootstrap.sh
+├── LICENSE
+├── README.md
+└── services
 ```
 
 ---
