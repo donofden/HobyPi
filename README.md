@@ -1,8 +1,5 @@
-# HobyPi
-🛠️ HobyPi — A Raspberry Pi powered home-control (to-do) stack with React, FastAPI, and Postgres.
-
 <p align="center">
-  <img src="apps/react-ui/HobyPi.png" alt="HobyPi" width="128">
+  <img src="apps/react-ui/HobyPi.png" alt="HobyPi" width="256">
 </p>
 
 # HobyPi
