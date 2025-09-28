@@ -53,6 +53,18 @@
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
 
+/* Weekend styling */
+.fc .fc-day-sat,
+.fc .fc-day-sun {
+  background-color: #e6ffe6 !important;
+}
+
+/* Weekend header styling */
+.fc th.fc-day-sat,
+.fc th.fc-day-sun {
+  background-color: #d1ffd1 !important;
+}
+
 .calendar-controls {
   display: flex;
   gap: 12px;
