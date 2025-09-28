@@ -37,6 +37,92 @@
   min-height: 700px;
 }
 
+.calendar-legend {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Holiday event styles */
+.fc-event-holiday {
+  font-size: 0.85em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  margin: 1px 0;
+  white-space: normal !important;
+  min-height: 20px;
+  display: block;
+  line-height: 1.2;
+}
+
+/* Adjust day cell content */
+.fc-daygrid-day-frame {
+  min-height: 90px !important;
+}
+
+.fc-daygrid-day-events {
+  margin: 2px !important;
+}
+
+.fc-daygrid-event-harness {
+  width: calc(100% - 4px) !important;
+  margin: 1px 2px !important;
+}
+
+.fc-event-holiday-uk {
+  background-color: #cce5ff !important;
+  color: #004085 !important;
+  border-color: #b8daff !important;
+}
+
+.fc-event-holiday-india {
+  background-color: #ffe0cc !important;
+  color: #803300 !important;
+  border-color: #ffd1b3 !important;
+}
+
+/* Improve event visibility */
+.fc-daygrid-event {
+  width: 100% !important;
+  padding: 2px 4px !important;
+  border-radius: 3px !important;
+  margin: 1px 0 !important;
+}
+
+/* Ensure proper spacing in day cells */
+.fc .fc-daygrid-body-balanced .fc-daygrid-day-events {
+  position: relative !important;
+}
+
+/* Allow text wrapping for better readability */
+.fc-event-title {
+  white-space: normal !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  font-weight: 500 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+}
+
 .calendar-main .fc {
   position: absolute;
   top: 2rem;
