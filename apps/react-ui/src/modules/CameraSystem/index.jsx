@@ -16,7 +16,7 @@ const initialCameras = [
     motionDetection: true,
     lastSeen: '2024-12-27 19:39:45',
     storageUsed: 15.2,
-    streamUrl: '/front-door-security-camera-view.jpg',
+    streamUrl: '/placeholder_image.png',
   },
   {
     id: 'cam-002',
@@ -32,7 +32,7 @@ const initialCameras = [
     motionDetection: true,
     lastSeen: '2024-12-27 19:39:42',
     storageUsed: 8.7,
-    streamUrl: '/living-room-interior-camera-view.jpg',
+    streamUrl: '/placeholder_image.png',
   },
   {
     id: 'cam-003',
@@ -48,7 +48,7 @@ const initialCameras = [
     motionDetection: true,
     lastSeen: '2024-12-27 19:39:40',
     storageUsed: 12.4,
-    streamUrl: '/backyard-garden-security-camera-view.jpg',
+    streamUrl: '/placeholder_image.png',
   },
   {
     id: 'cam-004',
@@ -64,7 +64,7 @@ const initialCameras = [
     motionDetection: false,
     lastSeen: '2024-12-27 18:45:12',
     storageUsed: 5.1,
-    streamUrl: '/garage-security-camera-offline.jpg',
+    streamUrl: '/placeholder_image.png',
   },
 ];
 

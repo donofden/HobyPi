@@ -58,25 +58,25 @@ export default function BillsAnalytics({ onBack }) {
         {/* Overview */}
         <div className="bills-section">
           <div className="bills-cards">
-            <div className="bills-card">
+            <div className="bills-card electricity">
               <div className="bills-card-title">Electricity Bill</div>
-              <div className="bills-card-value">${currentMonth.electricity.toFixed(2)}</div>
+              <div className="bills-card-value">£{currentMonth.electricity.toFixed(2)}</div>
               <div className="bills-card-change">
                 {electricityChange > 0 ? '▲' : electricityChange < 0 ? '▼' : '-'}
                 <span>{Math.abs(electricityChange).toFixed(1)}% from last month</span>
               </div>
             </div>
-            <div className="bills-card">
+            <div className="bills-card gas">
               <div className="bills-card-title">Gas Bill</div>
-              <div className="bills-card-value">${currentMonth.gas.toFixed(2)}</div>
+              <div className="bills-card-value">£{currentMonth.gas.toFixed(2)}</div>
               <div className="bills-card-change">
                 {gasChange > 0 ? '▲' : gasChange < 0 ? '▼' : '-'}
                 <span>{Math.abs(gasChange).toFixed(1)}% from last month</span>
               </div>
             </div>
-            <div className="bills-card">
+            <div className="bills-card total">
               <div className="bills-card-title">Total Bill</div>
-              <div className="bills-card-value">${currentMonth.total.toFixed(2)}</div>
+              <div className="bills-card-value">£{currentMonth.total.toFixed(2)}</div>
               <div className="bills-card-change">
                 {totalChange > 0 ? '▲' : totalChange < 0 ? '▼' : '-'}
                 <span>{Math.abs(totalChange).toFixed(1)}% from last month</span>
@@ -84,8 +84,8 @@ export default function BillsAnalytics({ onBack }) {
             </div>
           </div>
           <div className="bills-summary">
-            <div>Yearly Totals: Electricity ${yearlyTotals.electricity.toFixed(2)}, Gas ${yearlyTotals.gas.toFixed(2)}, Total ${yearlyTotals.total.toFixed(2)}</div>
-            <div>Monthly Averages: Electricity ${averageMonthly.electricity.toFixed(2)}, Gas ${averageMonthly.gas.toFixed(2)}, Total ${averageMonthly.total.toFixed(2)}</div>
+            <div>Yearly Totals: Electricity £{yearlyTotals.electricity.toFixed(2)}, Gas £{yearlyTotals.gas.toFixed(2)}, Total £{yearlyTotals.total.toFixed(2)}</div>
+            <div>Monthly Averages: Electricity £{averageMonthly.electricity.toFixed(2)}, Gas £{averageMonthly.gas.toFixed(2)}, Total £{averageMonthly.total.toFixed(2)}</div>
           </div>
         </div>
         {/* Trends */}
@@ -96,7 +96,7 @@ export default function BillsAnalytics({ onBack }) {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
-                <Tooltip formatter={(value) => [`$${value.toFixed(2)}`, '']} />
+                <Tooltip formatter={(value, name) => [`${name}: £${value.toFixed(2)}`]} />
                 <Line type="monotone" dataKey="electricity" stroke="#3b82f6" strokeWidth={2} name="Electricity" />
                 <Line type="monotone" dataKey="gas" stroke="#f59e0b" strokeWidth={2} name="Gas" />
                 <Line type="monotone" dataKey="total" stroke="#10b981" strokeWidth={2} name="Total" />
@@ -111,10 +111,10 @@ export default function BillsAnalytics({ onBack }) {
               <PieChart>
                 <Pie data={pieData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="value">
                   {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                    <Cell key={`cell-£{index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => [`$${value.toFixed(2)}`, '']} />
+                <Tooltip formatter={(value, name) => [`${name}: £${value.toFixed(2)}`]} />
               </PieChart>
             </ResponsiveContainer>
           </div>

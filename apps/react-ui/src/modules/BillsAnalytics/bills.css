@@ -35,6 +35,18 @@
   border-radius: 1rem;
   padding: 1.5rem;
   margin-bottom: 1rem;
+  border-left-width: 8px;
+  border-left-style: solid;
+  border-left-color: transparent;
+}
+.bills-card.electricity {
+  border-left-color: #3b82f6;
+}
+.bills-card.gas {
+  border-left-color: #f59e0b;
+}
+.bills-card.total {
+  border-left-color: #10b981;
 }
 .bills-card-title {
   font-weight: bold;
