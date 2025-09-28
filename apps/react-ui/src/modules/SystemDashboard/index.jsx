@@ -64,27 +64,27 @@ export default function SystemDashboard({ metrics, apiBase, onLogout, setPage })
         {/* Main dashboard cards for modules */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24, marginTop: 32 }}>
           <div className="dashboard-card dashboard-link" onClick={() => setPage('home')} style={{ cursor: 'pointer' }}>
-            <img src="/placeholder-logo.png" alt="Home Control" style={{ width: 32, height: 32, marginBottom: 8 }} />
+            <img src="/smart_home.png" alt="Home Control" style={{ width: 32, height: 32, marginBottom: 8 }} />
             <div style={{ fontWeight: 'bold', fontSize: 16 }}>Home Control</div>
             <div style={{ fontSize: 13, color: 'var(--muted-foreground, #64748b)' }}>Control lights, temperature, and room settings</div>
           </div>
           <div className="dashboard-card dashboard-link" onClick={() => setPage('cameras')} style={{ cursor: 'pointer' }}>
-            <img src="/front-door-security-camera-view.jpg" alt="Camera System" style={{ width: 32, height: 32, marginBottom: 8 }} />
+            <img src="/camera_system.png" alt="Camera System" style={{ width: 32, height: 32, marginBottom: 8 }} />
             <div style={{ fontWeight: 'bold', fontSize: 16 }}>Camera System</div>
             <div style={{ fontSize: 13, color: 'var(--muted-foreground, #64748b)' }}>Monitor and manage connected cameras</div>
           </div>
           <div className="dashboard-card dashboard-link" onClick={() => setPage('bills')} style={{ cursor: 'pointer' }}>
-            <img src="/placeholder-logo.png" alt="Bills Analytics" style={{ width: 32, height: 32, marginBottom: 8 }} />
+            <img src="/bill_analysis.png" alt="Bills Analytics" style={{ width: 32, height: 32, marginBottom: 8 }} />
             <div style={{ fontWeight: 'bold', fontSize: 16 }}>Bills Analytics</div>
             <div style={{ fontSize: 13, color: 'var(--muted-foreground, #64748b)' }}>Track power and gas usage expenses</div>
           </div>
           <div className="dashboard-card dashboard-link" onClick={() => setPage('todos')} style={{ cursor: 'pointer' }}>
-            <img src="/placeholder-user.jpg" alt="Todo List" style={{ width: 32, height: 32, marginBottom: 8 }} />
+            <img src="/todo_list.png" alt="Todo List" style={{ width: 32, height: 32, marginBottom: 8 }} />
             <div style={{ fontWeight: 'bold', fontSize: 16 }}>Todo List</div>
             <div style={{ fontSize: 13, color: 'var(--muted-foreground, #64748b)' }}>Manage tasks and reminders</div>
           </div>
           <div className="dashboard-card dashboard-link" onClick={() => setPage('calendar')} style={{ cursor: 'pointer' }}>
-            <img src="/calendar-component.png" alt="Calendar" style={{ width: 32, height: 32, marginBottom: 8 }} />
+            <img src="/calendar.png" alt="Calendar" style={{ width: 32, height: 32, marginBottom: 8 }} />
             <div style={{ fontWeight: 'bold', fontSize: 16 }}>Calendar</div>
             <div style={{ fontSize: 13, color: 'var(--muted-foreground, #64748b)' }}>Schedule events and appointments</div>
           </div>
