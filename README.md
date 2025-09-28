@@ -7,10 +7,12 @@
 > A Raspberry Pi powered home-control stack with **React**, **FastAPI**, **PostgreSQL**, and **Docker**.  
 > Built as a hobby project, evolving into a complete **home automation & control hub**.
 
-## Current Designs & Modules
+## Current Designs & API
 
 [HobyPi Design](docs/HobyPi.md)
+
 [HobyPi API](docs/HobyPi-API.md)
+
 ---
 
 ## Overview
