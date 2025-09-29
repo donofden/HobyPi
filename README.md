@@ -59,19 +59,47 @@ HobyPi/
 ### Clone repo
 ```bash
 # 1) Clone to your home (~/hobypi)
-git clone https://github.com/<you>/hobypi.git ~/hobypi
+git clone https://github.com/donofden/hobypi.git 
+
 cd ~/hobypi
 
 # 2) Make scripts executable
-chmod +x bootstrap.sh bootstrap-react-ui.sh bootstrap-fastapi.sh bootstrap-postgres.sh bin/*
+chmod +x scripts/* bin/*
 
 # 3) Run bootstrap (installs deps + global commands)
-./bootstrap.sh
+./scripts/bootstrap.sh
+
+# 4) Run bootstrap's (installs postgres, fastapi & react)
+# NOTE: Check how to convert USB as a storage unit
+./scripts/bootstrap-postgres.sh
+./scripts/bootstrap-fastapi.sh
+./scripts/bootstrap-react-ui.sh
 ```
-This will:
-- Update & upgrade the system  
-- Install essentials (git, curl, vim, htop, bc, etc.)  
+
+`bootstrap.sh` will:
+- Update & upgrade the system
+- Install essentials (git, curl, vim, htop, bc, etc.)
 - Install helper scripts globally (`check_temp`)
+
+[USB Storage Preparation Script](docs/PREPARE_USB_STORAGE.md)
+
+`bootstrap-postgres.sh` will install and configure PostgreSQL:
+
+```
+[HobyPi][PG] PostgreSQL is ready.
+  Data dir     : /mnt/hobypi-data/pgdata
+  Listen addr  : 0.0.0.0
+  Port         : 5432
+  Allowed CIDR : 192.168.1.0/24
+  Role         : postgres
+  Database     : hobypi
+
+Local connect:
+  PGPASSWORD='postgres' psql -h 127.0.0.1 -p 5432 -U postgres -d hobypi
+
+From laptop on the same LAN:
+  PGPASSWORD='postgres' psql -h 192.168.1.115 -p 5432 -U postgres -d hobypi -c 'SELECT 1;'
+```
 
 ## 🔧 Making HobyPi Commands Available Everywhere
 
@@ -105,28 +133,32 @@ If everything is set up correctly, you should see the Raspberry Pi’s temperatu
 ## Configure environment
 Copy `.env.example` → `.env` and set values:
 ```env
-POSTGRES_USER=app
-POSTGRES_PASSWORD=app_password
-POSTGRES_DB=appdb
-SECRET_KEY=super_secret_key
-ACCESS_TOKEN_EXPIRE_MINUTES=60
-DATABASE_URL=postgresql+psycopg://app:app_password@db:5432/appdb
-```
+# FastAPI
+APP_NAME=HobyPi API
+APP_DEBUG=true
 
-```
-[HobyPi][PG] PostgreSQL is ready.
-  Data dir     : /mnt/hobypi-data/pgdata
-  Listen addr  : 0.0.0.0
-  Port         : 5432
-  Allowed CIDR : 192.168.1.0/24
-  Role         : postgres
-  Database     : hobypi
+# JWT
+JWT_SECRET=change-me-super-secret
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_MINUTES=60
+JWT_ISSUER=hobypi
+JWT_AUDIENCE=hobypi-clients
 
-Local connect:
-  PGPASSWORD='postgres' psql -h 127.0.0.1 -p 5432 -U postgres -d hobypi
+# DB (both point to same DB; async for app, sync for Alembic)
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASS=postgres
+DB_NAME=hobypi
 
-From laptop on the same LAN:
-  PGPASSWORD='postgres' psql -h 192.168.1.115 -p 5432 -U postgres -d hobypi -c 'SELECT 1;'
+DATABASE_URL=postgresql+asyncpg://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+DATABASE_URL_SYNC=postgresql+psycopg://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+
+# Bootstrap admin (created/updated on API startup)
+BOOTSTRAP_ADMIN_USERNAME=admin
+BOOTSTRAP_ADMIN_EMAIL=admin@local
+BOOTSTRAP_ADMIN_NAME=ManOfAction
+BOOTSTRAP_ADMIN_PASSWORD=letmein
 ```
 
 ## 🗺️ Roadmap
