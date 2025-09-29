@@ -87,11 +87,12 @@ From laptop on the same LAN:
   PGPASSWORD='postgres' psql -h 192.168.1.115 -p 5432 -U postgres -d hobypi -c 'SELECT 1;'
 ```
 
-HobyPi uses a Makefile to simplify development tasks. Here are the main commands:
-
 ## Development Workflow
 
 ### Start Development Servers
+
+HobyPi uses a Makefile to simplify development tasks. Here are the main commands:
+
 ```bash
 # Start both React and FastAPI servers
 make start
