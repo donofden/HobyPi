@@ -4,7 +4,8 @@
 
 # HobyPi
 
-> A Raspberry Pi powered home-control stack with **React**, **FastAPI**, **PostgreSQL**, and **Docker**.  
+> A Raspberry Pi powered home-control stack with **React** & **FastAPI**
+
 > Built as a hobby project, evolving into a complete **home automation & control hub**.
 
 ## Current Designs & API
@@ -30,28 +31,6 @@ Start as a playground for coding hobbies → grow into a **home-control center**
 
 ---
 
-## Project Structure
-
-```
-HobyPi/
-├── apps
-├── bin
-│   ├── check_temp
-│   ├── docker_clean
-│   ├── health
-│   ├── netinfo
-│   ├── ports
-│   ├── throttle_status
-│   ├── top_procs
-│   └── update_all
-├── bootstrap.sh
-├── LICENSE
-├── README.md
-└── services
-```
-
----
-
 ## Getting Started
 
 ### First-time Setup on a New Pi
@@ -68,12 +47,17 @@ chmod +x scripts/* bin/*
 
 # 3) Run bootstrap (installs deps + global commands)
 ./scripts/bootstrap.sh
+# NOTE: Please reboot your Raspberry Pi after this step
+sudo reboot
 
-# 4) Run bootstrap's (installs postgres, fastapi & react)
-# NOTE: Check how to convert USB as a storage unit
-./scripts/bootstrap-postgres.sh
-./scripts/bootstrap-fastapi.sh
-./scripts/bootstrap-react-ui.sh
+# 4) Prepare USB storage for PostgreSQL
+# IMPORTANT: PostgreSQL requires external USB storage for better performance and reliability
+# Follow the detailed guide: docs/PREPARE_USB_STORAGE.md
+
+# 5) Run bootstrap scripts for components
+./scripts/bootstrap-postgres.sh  # Configures PostgreSQL with USB storage
+./scripts/bootstrap-fastapi.sh   # Sets up the FastAPI backend
+./scripts/bootstrap-react-ui.sh  # Sets up the React frontend
 ```
 
 `bootstrap.sh` will:
@@ -101,7 +85,53 @@ From laptop on the same LAN:
   PGPASSWORD='postgres' psql -h 192.168.1.115 -p 5432 -U postgres -d hobypi -c 'SELECT 1;'
 ```
 
-## 🔧 Making HobyPi Commands Available Everywhere
+HobyPi uses a Makefile to simplify development tasks. Here are the main commands:
+
+## Development Workflow
+
+### Start Development Servers
+```bash
+# Start both React and FastAPI servers
+make start
+
+# Start individual components
+make react-start  # Starts React on port 3000
+make api-start    # Starts FastAPI on port 8000
+```
+
+### View Logs
+```bash
+make logs-react  # Watch React development server logs
+make logs-api    # Watch FastAPI server logs
+```
+
+### Component Management
+```bash
+make status      # Check running services and their ports
+make restart     # Restart both servers
+make stop        # Stop all development servers
+
+# Individual component restarts
+make react-restart
+make api-restart
+```
+
+### Setup and Maintenance
+```bash
+make setup-react  # Install/update React dependencies
+make setup-api    # Create Python venv and install FastAPI deps
+make clean-logs   # Remove old log files
+make ensure-tools # Install system tools (psmisc, lsof)
+```
+
+You can customize ports using environment variables:
+```bash
+REACT_PORT=4000 
+API_PORT=9000 
+make start
+```
+
+## Making HobyPi Commands Available Everywhere
 
 By default, the helper scripts (like `check_temp`) live in the `bin/` folder of this repo.  
 To run them from **any directory**, add `HobyPi/bin` to your shell `PATH`.
@@ -163,34 +193,34 @@ BOOTSTRAP_ADMIN_PASSWORD=letmein
 
 ## 🗺️ Roadmap
 
-- [ ] Base stack: React + FastAPI + Postgres  
+- [ ] Update Features with React + FastAPI + Postgres
 - [ ] JWT Authentication with roles/claims  
 - [ ] IoT device integration (sensors, switches)  
-- [ ] Smart home dashboards  
-- [ ] Remote access with HTTPS + mobile app  
-- [ ] Automation rules (e.g., “turn on lights at sunset”)  
+- [ ] Smart home dashboards
+- [ ] Remote access with HTTPS + mobile app
+- [ ] Automation rules (e.g., “turn on lights at sunset”)
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions, issues, and feature requests are welcome!  
 Feel free to fork this repo and open a PR.
 
 ---
 
-## 📜 License
+## License
 
 This project is licensed under the **MIT License** – see [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🌟 Acknowledgements
+## Acknowledgements
 
 - [FastAPI](https://fastapi.tiangolo.com/)  
 - [React](https://react.dev/)  
 - [PostgreSQL](https://www.postgresql.org/)  
 - [Docker](https://www.docker.com/)  
-- Raspberry Pi community ❤️
+- [Raspberry Pi](https://www.raspberrypi.com/) community ❤️
 
 ---

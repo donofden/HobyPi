@@ -1,5 +1,6 @@
 logs/
 .pids/
+code/
 node_modules/
 .env
 
