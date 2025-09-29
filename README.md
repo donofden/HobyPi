@@ -8,11 +8,13 @@
 
 > Built as a hobby project, evolving into a complete **home automation & control hub**.
 
-## Current Designs & API
+## Current Hardware, UI & API
 
-[HobyPi Design](docs/HobyPi.md)
+[HobyPi UI](docs/HobyPi.md)
 
 [HobyPi API](docs/HobyPi-API.md)
+
+[HobyPi Hardware Guide](https://github.com/donofden/HobyPi/wiki/HobyPi-Hardware-Guide)
 
 ---
 
