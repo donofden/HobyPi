@@ -65,7 +65,7 @@
 # Postgres tip:
 #   - Create data dir on the USB:  sudo mkdir -p /mnt/hobypi-data/pgdata
 #                                  sudo chown -R postgres:postgres /mnt/hobypi-data/pgdata
-#   - Point PGDATA there, native or Docker bind mount.
+#   - Point PGDATA there, native.
 # ==============================================================================
 
 set -euo pipefail

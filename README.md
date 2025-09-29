@@ -63,7 +63,7 @@ git clone https://github.com/<you>/hobypi.git ~/hobypi
 cd ~/hobypi
 
 # 2) Make scripts executable
-chmod +x bootstrap.sh bootstrap-react-ui.sh bootstrap-fastapi.sh bin/*
+chmod +x bootstrap.sh bootstrap-react-ui.sh bootstrap-fastapi.sh bootstrap-postgres.sh bin/*
 
 # 3) Run bootstrap (installs deps + global commands)
 ./bootstrap.sh
@@ -111,6 +111,22 @@ POSTGRES_DB=appdb
 SECRET_KEY=super_secret_key
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 DATABASE_URL=postgresql+psycopg://app:app_password@db:5432/appdb
+```
+
+```
+[HobyPi][PG] PostgreSQL is ready.
+  Data dir     : /mnt/hobypi-data/pgdata
+  Listen addr  : 0.0.0.0
+  Port         : 5432
+  Allowed CIDR : 192.168.1.0/24
+  Role         : postgres
+  Database     : hobypi
+
+Local connect:
+  PGPASSWORD='postgres' psql -h 127.0.0.1 -p 5432 -U postgres -d hobypi
+
+From laptop on the same LAN:
+  PGPASSWORD='postgres' psql -h 192.168.1.115 -p 5432 -U postgres -d hobypi -c 'SELECT 1;'
 ```
 
 ## 🗺️ Roadmap
