@@ -43,3 +43,15 @@
 .dashboard-throttle {
   margin-top: 1rem;
 }
+
+/* Match primary button style used across the app */
+.dashboard-btn {
+  background: var(--primary, #60a5fa);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
