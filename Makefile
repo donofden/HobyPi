@@ -72,7 +72,6 @@ setup-react:
 	@cd "$(REACT_DIR)" && npm install
 
 setup-api:
-	setup-api:
 	@echo "[api] ensure venv + deps in $(FASTAPI_DIR)"
 	@cd "$(FASTAPI_DIR)" && { [ -d .venv ] || python3 -m venv .venv; . .venv/bin/activate; python -m pip install --upgrade pip; [ -f requirements.txt ] || printf "fastapi==0.115.2\nuvicorn[standard]==0.30.6\npsutil==5.9.8\npydantic-settings==2.5.2\nSQLAlchemy==2.0.*\nalembic==1.13.*\npython-dotenv==1.0.*\npasslib[bcrypt]==1.7.*\npython-jose==3.3.*\npsycopg[binary]==3.2.*\nasyncpg==0.29.*\n" > requirements.txt; pip install -r requirements.txt; }
 	@cd "$(FASTAPI_DIR)" && { [ -f .env ] || cp .env.example .env 2>/dev/null || true; }
@@ -220,7 +219,3 @@ clean-pids:
 clean-logs:
 	@rm -f "$(LOG_DIR)/react-dev.log" "$(LOG_DIR)/fastapi.log" 2>/dev/null || true
 	@echo "[clean] removed logs (if any)"
-
-ensure-tools:
-	@sudo apt update -y && sudo apt install -y psmisc lsof
-	@echo "[tools] installed psmisc (fuser) and lsof"

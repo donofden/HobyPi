@@ -40,7 +40,7 @@ class Settings(BaseSettings):
     )
     db_url_sync: str = os.getenv(
         "DATABASE_URL_SYNC", 
-        "postgresql://postgres:postgres@localhost/hobypi"
+        "postgresql+psycopg://postgres:postgres@localhost/hobypi"
     )
     
     # JWT authentication settings

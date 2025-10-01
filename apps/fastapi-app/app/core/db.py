@@ -1,10 +1,7 @@
 """Database engine and session utilities."""
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
+from sqlalchemy.orm import sessionmaker
 from app.core.config import settings
-
-class Base(DeclarativeBase):
-    pass
 
 engine = create_async_engine(settings.db_url_async, echo=False, future=True)
 

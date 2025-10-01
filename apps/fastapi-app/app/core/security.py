@@ -5,6 +5,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 from jose import jwt, JWTError
 from passlib.context import CryptContext
+from passlib.hash import pbkdf2_sha256
 from pydantic import BaseModel
 from app.core.config import settings
 from app.models.user import User
@@ -12,7 +13,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.core.db import get_session
 
-pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Use PBKDF2 as fallback if bcrypt fails
+try:
+    pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    # Test bcrypt
+    pwd_ctx.hash("test")
+except Exception:
+    # Fallback to PBKDF2 if bcrypt has issues
+    pwd_ctx = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 OAUTH2_SCOPES = {
     "users:read": "Read user profiles",
@@ -24,9 +32,11 @@ OAUTH2_SCOPES = {
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login", scopes=OAUTH2_SCOPES)
 
 def hash_password(raw: str) -> str:
+    """Hash password safely."""
     return pwd_ctx.hash(raw)
 
 def verify_password(raw: str, hashed: str) -> bool:
+    """Verify password safely."""
     return pwd_ctx.verify(raw, hashed)
 
 class JWTPayload(BaseModel):

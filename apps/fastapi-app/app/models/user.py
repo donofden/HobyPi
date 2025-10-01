@@ -1,8 +1,7 @@
 """User model with username, password hash and flags."""
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Boolean, Integer, Table, Column, ForeignKey
-from app.core.db import Base
-from .base import TimestampMixin
+from .base import Base, TimestampMixin
 
 class User(TimestampMixin, Base):
     __tablename__ = "users"

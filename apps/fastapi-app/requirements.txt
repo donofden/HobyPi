@@ -4,7 +4,7 @@ psutil==5.9.8
 pydantic-settings==2.5.2
 SQLAlchemy==2.0.*
 alembic==1.13.*
-pydantic==2.9.*
+pydantic[email]==2.9.*
 python-dotenv==1.0.*
 passlib[bcrypt]==1.7.*
 python-jose==3.3.*

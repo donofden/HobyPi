@@ -1,8 +1,7 @@
 """Role model grouping scopes; includes a simple seeder."""
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Integer
-from app.core.db import Base
-from .base import TimestampMixin
+from .base import Base, TimestampMixin
 
 class Role(TimestampMixin, Base):
     __tablename__ = "roles"
