@@ -1,13 +1,20 @@
 
 import './dashboard.css';
 
-export default function SystemDashboard({ metrics, apiBase, onLogout, setPage }) {
+export default function SystemDashboard({ metrics, apiBase, onLogout, setPage, user }) {
+  console.log('SystemDashboard received user:', user);
+  
   return (
     <div className="dashboard-bg">
       <header className="dashboard-header">
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <img src="/HobyPi.png" alt="HobyPi logo" width={32} height={32} />
           <span className="dashboard-title">HobyPi Control Center</span>
+          {user && (
+            <span style={{ marginLeft: 16, fontSize: 14, color: 'var(--muted-foreground, #64748b)' }}>
+              Welcome, {user.username} ({user.roles && user.roles.length > 0 ? user.roles.join(', ') : 'user'})
+            </span>
+          )}
         </div>
         <button onClick={onLogout} className="dashboard-btn">Logout</button>
       </header>

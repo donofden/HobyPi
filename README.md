@@ -8,7 +8,27 @@
 
 > Built as a hobby project, evolving into a complete **home automation & control hub**.
 
-## Current Hardware, UI & API
+## 🗺️ Roadmap
+
+- [x] **System Monitoring** - CPU temperature, system metrics, health checks ✅
+- [x] **JWT Authentication** - Secure token-based authentication with roles/claims ✅
+- [x] **User Management** - Complete user CRUD with role-based access control ✅
+- [x] **Database Integration** - PostgreSQL with async SQLAlchemy and migrations ✅
+- [x] **React Integration** - Frontend connected with authentication system ✅
+- [x] **Automated Bootstrap** - Default users and roles created on startup ✅
+- [ ] **IoT Device Integration** - sensors, switches, GPIO control
+- [ ] **Smart Home Dashboards** - Real-time monitoring and control interfaces
+- [ ] **Remote Access** - HTTPS setup with mobile app support
+- [ ] **Automation Rules** - event-driven workflows (e.g., "turn on lights at sunset")
+- [ ] **Camera System** - Live streaming and recording capabilities
+- [ ] **Home Security** - Motion detection, alerts, and monitoringtoring** - CPU temperature, system metrics, health checks
+- **JWT Authentication** - Secure token-based authentication with roles/claims
+- **User Management** - Complete user CRUD with role-based access control
+- **Database Integration** - PostgreSQL with async SQLAlchemy and migrations
+- **React Integration** - Frontend connected with authentication system
+- **Automated Bootstrap** - Default users and roles created on startup
+
+## Hardware, UI & API
 
 [HobyPi UI](docs/HobyPi.md)
 
@@ -24,9 +44,10 @@
 It combines:
 
 - ⚛️ **React** → Modern frontend UI  
-- ⚡ **FastAPI** → High-performance backend APIs  
+- ⚡ **FastAPI** → High-performance backend APIs with authentication & user management
 - 🐘 **PostgreSQL** → Relational database storage  
-- 🐳 **Docker Compose** → Simple containerized deployment  
+- 🔐 **JWT Authentication** → Secure role-based access control
+- 📊 **System Monitoring** → Real-time CPU, memory, and temperature monitoring
 
 The goal:  
 Start as a playground for coding hobbies → grow into a **home-control center** that manages IoT devices, sensors, and smart-home workflows.
@@ -102,6 +123,21 @@ make react-start  # Starts React on port 3000
 make api-start    # Starts FastAPI on port 8000
 ```
 
+### Database Management
+```bash
+make db-status    # Check PostgreSQL and database connection
+make db-migrate   # Apply database migrations
+make db-revision MSG="description"  # Create new migration
+```
+
+### API Testing
+```bash
+make test           # Run all tests
+make test-api       # Test basic API endpoints
+make test-auth      # Test authentication and secured endpoints
+make test-auth-flow # Test complete authentication flow
+```
+
 ### View Logs
 ```bash
 make logs-react  # Watch React development server logs
@@ -124,7 +160,7 @@ make api-restart
 make setup-react  # Install/update React dependencies
 make setup-api    # Create Python venv and install FastAPI deps
 make clean-logs   # Remove old log files
-make ensure-tools # Install system tools (psmisc, lsof)
+make ensure-tools # Install system tools (psmisc, lsof, curl, jq)
 ```
 
 You can customize ports using environment variables:
@@ -166,33 +202,108 @@ If everything is set up correctly, you should see the Raspberry Pi’s temperatu
 ## Configure environment
 Copy `.env.example` → `.env` and set values:
 ```env
-# FastAPI
-APP_NAME=HobyPi API
+# Application Settings
+APP_NAME="HobyPi Enhanced API"
 APP_DEBUG=true
 
-# JWT
-JWT_SECRET=change-me-super-secret
+# Database Configuration
+DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost/hobypi
+DATABASE_URL_SYNC=postgresql://postgres:postgres@localhost/hobypi
+
+# JWT Authentication
+JWT_SECRET=change-me-super-secret-key-for-production
 JWT_ALGORITHM=HS256
 JWT_EXPIRE_MINUTES=60
 JWT_ISSUER=hobypi
 JWT_AUDIENCE=hobypi-clients
 
-# DB (both point to same DB; async for app, sync for Alembic)
+# Bootstrap Admin User (created automatically on startup)
+BOOTSTRAP_ADMIN_USERNAME=admin
+BOOTSTRAP_ADMIN_EMAIL=admin@local
+BOOTSTRAP_ADMIN_NAME=HobyPi Administrator
+BOOTSTRAP_ADMIN_PASSWORD=letmein
+
+# Database Connection Variables
 DB_HOST=localhost
 DB_PORT=5432
 DB_USER=postgres
 DB_PASS=postgres
 DB_NAME=hobypi
-
-DATABASE_URL=postgresql+asyncpg://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}
-DATABASE_URL_SYNC=postgresql+psycopg://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}
-
-# Bootstrap admin (created/updated on API startup)
-BOOTSTRAP_ADMIN_USERNAME=admin
-BOOTSTRAP_ADMIN_EMAIL=admin@local
-BOOTSTRAP_ADMIN_NAME=ManOfAction
-BOOTSTRAP_ADMIN_PASSWORD=letmein
 ```
+
+## 🔌 API Endpoints
+
+### Public Endpoints
+- `GET /` - API health check and version info
+
+### System Monitoring (Requires Authentication)
+- `GET /system/health` - System health status *(requires: system:read)*
+- `GET /system/temp` - CPU temperature and throttling status *(requires: system:read)*
+- `GET /system/metrics` - Comprehensive system metrics (CPU, memory, disk, network, top processes) *(requires: system:read)*
+
+### Authentication & Security
+
+**🔐 JWT Token-Based Authentication**
+- All system monitoring and user management endpoints require authentication
+- JWT tokens with configurable expiration and scopes
+- Secure password hashing with PBKDF2/bcrypt fallback
+
+**👥 Role-Based Access Control**
+- **Admin**: Full access to all endpoints (`admin`, `system:read`, `users:read`, `users:write`)
+- **Editor**: User management + system monitoring (`users:read`, `users:write`, `system:read`) 
+- **Viewer**: Read-only access (`users:read`, `system:read`)
+
+**🔑 Default User Accounts**
+| User | Username | Password | Scopes |
+|------|----------|----------|---------|
+| Admin | `admin` | `letmein` | Full access to all endpoints |
+| Viewer | `viewer` | `viewpass` | Read-only system monitoring |
+
+**📡 Authentication Endpoints**
+- `POST /auth/login` - Login with username/email and password (returns JWT token)
+
+**🛡️ Protected Endpoints (Require Authentication)**
+- `GET /auth/me` - Get current user info *(requires: valid JWT token)*
+- `GET /system/health` - System health status *(requires: system:read)*
+- `GET /system/temp` - CPU temperature *(requires: system:read)*  
+- `GET /system/metrics` - System metrics *(requires: system:read)*
+- `GET /users` - List users *(requires: users:read)*
+- `POST /users` - Create user *(requires: users:write)*
+- `PUT /users/{id}` - Update user *(requires: users:write)*
+- `DELETE /users/{id}` - Delete user *(requires: users:write)*
+
+### Testing the API
+
+```bash
+# Test root endpoint (no authentication required)
+curl http://localhost:8000/
+
+# Login and get JWT token
+curl -X POST "http://localhost:8000/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"identifier": "admin", "password": "letmein"}'
+
+# Use token for authenticated requests
+TOKEN="your_jwt_token_here"
+curl -H "Authorization: Bearer $TOKEN" http://localhost:8000/auth/me
+curl -H "Authorization: Bearer $TOKEN" http://localhost:8000/system/metrics
+curl -H "Authorization: Bearer $TOKEN" http://localhost:8000/users
+
+# Create a new user
+curl -X POST "http://localhost:8000/users" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "newuser",
+    "email": "user@example.com", 
+    "full_name": "New User",
+    "password": "securepassword"
+  }'
+```
+
+### Interactive API Documentation
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
 
 ## 🗺️ Roadmap
 
