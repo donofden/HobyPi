@@ -8,12 +8,6 @@
 
 > Built as a hobby project, evolving into a complete **home automation & control hub**.
 
-## Current Features
-
-- *### Interactive API Documentation
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-
 ## 🗺️ Roadmap
 
 - [x] **System Monitoring** - CPU temperature, system metrics, health checks ✅
@@ -54,7 +48,6 @@ It combines:
 - 🐘 **PostgreSQL** → Relational database storage  
 - 🔐 **JWT Authentication** → Secure role-based access control
 - 📊 **System Monitoring** → Real-time CPU, memory, and temperature monitoring
-- 🐳 **Docker Compose** → Simple containerized deployment  
 
 The goal:  
 Start as a playground for coding hobbies → grow into a **home-control center** that manages IoT devices, sensors, and smart-home workflows.
