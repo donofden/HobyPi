@@ -1,11 +1,12 @@
 
 import React, { useState } from 'react';
 import './login.css';
+import { API_BASE } from '../../constants';
 
 export default function LoginForm({ onLogin }) {
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('hobypi');
+  const [password, setPassword] = useState('letmein');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -13,14 +14,57 @@ export default function LoginForm({ onLogin }) {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-    setTimeout(() => {
-      if (username === 'admin' && password === 'hobypi') {
-        if (onLogin) onLogin();
+
+    try {
+      // Call the authentication endpoint with JSON payload
+      const response = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          identifier: username,
+          password: password,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Fetch user details from /auth/me endpoint
+        const userResponse = await fetch(`${API_BASE}/auth/me`, {
+          headers: {
+            'Authorization': `${data.token_type} ${data.access_token}`,
+          },
+        });
+
+        let userData = null;
+        if (userResponse.ok) {
+          userData = await userResponse.json();
+          console.log('User data from /auth/me:', userData);
+        }
+        
+        // Store token and user info in localStorage
+        localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('token_type', data.token_type);
+        if (userData) {
+          localStorage.setItem('user_info', JSON.stringify(userData));
+          console.log('Stored user info:', userData);
+        }
+        
+        // Call onLogin to update app state
+        console.log('Calling onLogin with:', { ...data, user: userData });
+        if (onLogin) onLogin({ ...data, user: userData });
       } else {
-        setError('Invalid username or password');
+        const errorData = await response.json();
+        setError(errorData.detail || 'Invalid username or password');
       }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('Network error. Please check your connection.');
+    } finally {
       setIsLoading(false);
-    }, 500);
+    }
   };
 
   return (
@@ -70,7 +114,7 @@ export default function LoginForm({ onLogin }) {
           </button>
         </form>
         <div className="login-demo">
-          Demo credentials: admin / hobypi
+          Demo credentials: admin / letmein
         </div>
       </div>
     </div>
