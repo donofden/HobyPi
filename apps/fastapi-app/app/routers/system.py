@@ -6,35 +6,49 @@ This module provides endpoints for monitoring Raspberry Pi system metrics:
 - CPU temperature and throttling status
 - Comprehensive system metrics (CPU, memory, disk, network, processes)
 
-All endpoints are public (no authentication required) to allow basic
-monitoring even when the authentication system is unavailable.
+All endpoints require authentication with appropriate scopes:
+- system:read - Required for all system monitoring endpoints
+- admin - Administrative access (includes all system permissions)
 """
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends, Security
+from fastapi.security import SecurityScopes
 from app.services.system_metrics import build_temp_payload, build_metrics_payload
+from app.core.security import get_current_user
+from app.models.user import User
 
 # Create router with automatic OpenAPI tags
 router = APIRouter()
 
 @router.get("/health", tags=["System"])
-def health():
+def health(
+    current_user: User = Security(get_current_user, scopes=["system:read"])
+):
     """
     Basic system health check endpoint.
+    
+    Requires: system:read scope
     
     Returns:
         dict: Simple status indicating the API is responding
     """
-    return {"ok": True}
+    return {"ok": True, "user": current_user.username}
 
 @router.get("/temp", tags=["System"])
-def temp():
+def temp(
+    current_user: User = Security(get_current_user, scopes=["system:read"])
+):
     """
-    Get CPU temperature and throttling status.
+    Get CPU temperature and throttling information.
     
-    Reads temperature from vcgencmd (Raspberry Pi) or thermal zone.
-    Also reports any throttling conditions that may affect performance.
+    Requires: system:read scope
+    
+    Returns detailed information about:
+    - Current CPU temperature in Celsius
+    - Throttling status including undervoltage, frequency capping, thermal limits
+    - Historical flags showing if any throttling has occurred since boot
     
     Returns:
-        dict: Temperature in Celsius, throttling hex value, and decoded flags
+        dict: Temperature and throttling status information
     """
     return build_temp_payload()
 
@@ -52,9 +66,12 @@ def metrics(
         le=20, 
         description="Number of top processes by CPU usage to return"
     ),
+    current_user: User = Security(get_current_user, scopes=["system:read"])
 ):
     """
     Get comprehensive system metrics.
+    
+    Requires: system:read scope
     
     Provides detailed information about system resource usage including:
     - CPU usage per core and average

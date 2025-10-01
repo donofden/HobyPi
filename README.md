@@ -230,18 +230,33 @@ DB_NAME=hobypi
 - `GET /system/temp` - CPU temperature and throttling status  
 - `GET /system/metrics` - Comprehensive system metrics (CPU, memory, disk, network, top processes)
 
-### Authentication
+### Authentication & Security
+
+**🔐 JWT Token-Based Authentication**
+- All system monitoring and user management endpoints require authentication
+- JWT tokens with configurable expiration and scopes
+- Secure password hashing with PBKDF2/bcrypt fallback
+
+**👥 Role-Based Access Control**
+- **Admin**: Full access to all endpoints (`admin`, `system:read`, `users:read`, `users:write`)
+- **Editor**: User management + system monitoring (`users:read`, `users:write`, `system:read`) 
+- **Viewer**: Read-only access (`users:read`, `system:read`)
+
+**🔑 Default User Accounts**
+| User | Username | Password | Scopes |
+|------|----------|----------|---------|
+| Admin | `admin` | `letmein` | Full access to all endpoints |
+| Viewer | `viewer` | `viewpass` | Read-only system monitoring |
+
+**📡 Authentication Endpoints**
 - `POST /auth/login` - Login with username/email and password (returns JWT token)
-- `GET /auth/me` - Get current user profile (requires authentication)
 
-### User Management (Requires Authentication)
-- `GET /users` - List all users (requires `users:read` scope)
-- `POST /users` - Create new user (requires `users:write` scope)
-
-### Default Admin User
-- **Username**: `admin`
-- **Password**: `letmein`
-- **Roles**: Admin (full access to all endpoints)
+**🛡️ Protected Endpoints**
+- `GET /system/health` - System health status *(requires: system:read)*
+- `GET /system/temp` - CPU temperature *(requires: system:read)*  
+- `GET /system/metrics` - System metrics *(requires: system:read)*
+- `GET /users` - List users *(requires: users:read)*
+- `POST /users` - Create user *(requires: users:write)*
 
 ### Testing the API
 
