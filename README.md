@@ -6,21 +6,45 @@
 
 > A Raspberry Pi powered home-control stack with **React** & **FastAPI**
 
+> Built as a hobby project, evolving into a complete **home automation **🔑 Default User Accounts**
+| User | Username | Password | Scopes |
+|------|----------|----------|----------|
+| Admin | `admin` | `letmein` | Full access to all endpoints |
+| Viewer | `viewer` | `letmein` | Read-only system monitoring |trol hub**.
+
+# HobyPi
+
+> A Raspberry Pi powered home-control stack with **React** & **FastAPI**
+
 > Built as a hobby project, evolving into a complete **home automation & control hub**.
 
-## Cur## 🗺️ Roadmap
+## Current Features
 
-- [x] **System Monitoring** - CPU temperature, system metrics, health checks
-- [x] **JWT Authentication** - Secure token-based authentication with roles/claims
-- [x] **User Management** - Complete user CRUD with role-based access control
-- [x] **Database Integration** - PostgreSQL with async SQLAlchemy and migrations
-- [ ] **React Integration** - Connect frontend with authentication system
+- *### Interactive API Documentation
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+
+## 🗺️ Roadmap
+
+- [x] **System Monitoring** - CPU temperature, system metrics, health checks ✅
+- [x] **JWT Authentication** - Secure token-based authentication with roles/claims ✅
+- [x] **User Management** - Complete user CRUD with role-based access control ✅
+- [x] **Database Integration** - PostgreSQL with async SQLAlchemy and migrations ✅
+- [x] **React Integration** - Frontend connected with authentication system ✅
+- [x] **Automated Bootstrap** - Default users and roles created on startup ✅
 - [ ] **IoT Device Integration** - sensors, switches, GPIO control
 - [ ] **Smart Home Dashboards** - Real-time monitoring and control interfaces
 - [ ] **Remote Access** - HTTPS setup with mobile app support
 - [ ] **Automation Rules** - event-driven workflows (e.g., "turn on lights at sunset")
 - [ ] **Camera System** - Live streaming and recording capabilities
-- [ ] **Home Security** - Motion detection, alerts, and monitoringdware, UI & API
+- [ ] **Home Security** - Motion detection, alerts, and monitoringtoring** - CPU temperature, system metrics, health checks
+- **JWT Authentication** - Secure token-based authentication with roles/claims
+- **User Management** - Complete user CRUD with role-based access control
+- **Database Integration** - PostgreSQL with async SQLAlchemy and migrations
+- **React Integration** - Frontend connected with authentication system
+- **Automated Bootstrap** - Default users and roles created on startup
+
+## Hardware, UI & API
 
 [HobyPi UI](docs/HobyPi.md)
 
@@ -125,8 +149,10 @@ make db-revision MSG="description"  # Create new migration
 
 ### API Testing
 ```bash
-make test-api     # Test system monitoring endpoints
-make test-auth    # Test authentication flow
+make test           # Run all tests
+make test-api       # Test basic API endpoints
+make test-auth      # Test authentication and secured endpoints
+make test-auth-flow # Test complete authentication flow
 ```
 
 ### View Logs
@@ -224,11 +250,13 @@ DB_NAME=hobypi
 
 ## 🔌 API Endpoints
 
-### System Monitoring (Public Access)
+### Public Endpoints
 - `GET /` - API health check and version info
-- `GET /system/health` - System health status
-- `GET /system/temp` - CPU temperature and throttling status  
-- `GET /system/metrics` - Comprehensive system metrics (CPU, memory, disk, network, top processes)
+
+### System Monitoring (Requires Authentication)
+- `GET /system/health` - System health status *(requires: system:read)*
+- `GET /system/temp` - CPU temperature and throttling status *(requires: system:read)*
+- `GET /system/metrics` - Comprehensive system metrics (CPU, memory, disk, network, top processes) *(requires: system:read)*
 
 ### Authentication & Security
 
@@ -251,21 +279,21 @@ DB_NAME=hobypi
 **📡 Authentication Endpoints**
 - `POST /auth/login` - Login with username/email and password (returns JWT token)
 
-**🛡️ Protected Endpoints**
+**🛡️ Protected Endpoints (Require Authentication)**
+- `GET /auth/me` - Get current user info *(requires: valid JWT token)*
 - `GET /system/health` - System health status *(requires: system:read)*
 - `GET /system/temp` - CPU temperature *(requires: system:read)*  
 - `GET /system/metrics` - System metrics *(requires: system:read)*
 - `GET /users` - List users *(requires: users:read)*
 - `POST /users` - Create user *(requires: users:write)*
+- `PUT /users/{id}` - Update user *(requires: users:write)*
+- `DELETE /users/{id}` - Delete user *(requires: users:write)*
 
 ### Testing the API
 
 ```bash
-# Test system endpoints (no authentication required)
+# Test root endpoint (no authentication required)
 curl http://localhost:8000/
-curl http://localhost:8000/system/health
-curl http://localhost:8000/system/temp
-curl http://localhost:8000/system/metrics
 
 # Login and get JWT token
 curl -X POST "http://localhost:8000/auth/login" \
@@ -275,6 +303,7 @@ curl -X POST "http://localhost:8000/auth/login" \
 # Use token for authenticated requests
 TOKEN="your_jwt_token_here"
 curl -H "Authorization: Bearer $TOKEN" http://localhost:8000/auth/me
+curl -H "Authorization: Bearer $TOKEN" http://localhost:8000/system/metrics
 curl -H "Authorization: Bearer $TOKEN" http://localhost:8000/users
 
 # Create a new user

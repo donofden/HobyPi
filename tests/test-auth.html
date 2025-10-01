@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HobyPi Auth Test</title>
+</head>
+<body>
+    <h1>HobyPi Authentication Test</h1>
+    
+    <form id="loginForm">
+        <div>
+            <label for="username">Username:</label>
+            <input type="text" id="username" value="admin" required>
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" value="letmein" required>
+        </div>
+        <button type="submit">Login</button>
+    </form>
+    
+    <div id="result"></div>
+    <div id="metrics"></div>
+    
+    <script>
+        const API_BASE = 'http://192.168.1.115:8000';
+        let authToken = '';
+        
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                // Login
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        identifier: username,
+                        password: password,
+                    }),
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    authToken = `${data.token_type} ${data.access_token}`;
+                    resultDiv.innerHTML = `<h3>Login Successful!</h3><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    
+                    // Get user info
+                    const userResponse = await fetch(`${API_BASE}/auth/me`, {
+                        headers: {
+                            'Authorization': authToken,
+                        },
+                    });
+                    
+                    if (userResponse.ok) {
+                        const userData = await userResponse.json();
+                        resultDiv.innerHTML += `<h3>User Info:</h3><pre>${JSON.stringify(userData, null, 2)}</pre>`;
+                    }
+                    
+                    // Get metrics
+                    const metricsResponse = await fetch(`${API_BASE}/system/metrics`, {
+                        headers: {
+                            'Authorization': authToken,
+                        },
+                    });
+                    
+                    if (metricsResponse.ok) {
+                        const metricsData = await metricsResponse.json();
+                        document.getElementById('metrics').innerHTML = `<h3>System Metrics:</h3><pre>${JSON.stringify(metricsData, null, 2)}</pre>`;
+                    }
+                    
+                } else {
+                    const errorData = await response.json();
+                    resultDiv.innerHTML = `<h3>Login Failed:</h3><pre>${JSON.stringify(errorData, null, 2)}</pre>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<h3>Network Error:</h3><pre>${error.message}</pre>`;
+            }
+        });
+    </script>
+</body>
+</html>

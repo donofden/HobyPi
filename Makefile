@@ -35,7 +35,7 @@ endef
         start stop restart status logs-react logs-api \
         kill-react-port kill-api-port kill-ports kill-port kill--port killport \
         react-restart api-restart clean-pids clean-logs ensure-tools \
-        db-migrate db-revision test-api test-auth db-status
+	db-migrate db-revision test test-api test-auth test-auth-flow db-status
 
 help:
 	@echo "HobyPi dev commands:"
@@ -59,8 +59,10 @@ help:
 	@echo "  make db-migrate         # run database migrations"
 	@echo "  make db-revision MSG=#  # create new database migration"
 	@echo "  make db-status          # check PostgreSQL status"
-	@echo "  make test-api           # test API endpoints"
-	@echo "  make test-auth          # test authentication flow"
+	@echo "  make test               # run all tests"
+	@echo "  make test-api           # test basic API endpoints"
+	@echo "  make test-auth          # test authentication and secured endpoints"
+	@echo "  make test-auth-flow     # test complete authentication flow"
 	@echo "Overrides: REACT_PORT=4000 API_PORT=9000"
 
 init:
@@ -93,13 +95,22 @@ db-status:
 	@cd "$(FASTAPI_DIR)" && . .venv/bin/activate && python3 -c "import asyncio; from app.core.db import engine; print('✅ Database connection successful')" 2>/dev/null || echo "❌ Database connection failed"
 
 # --- API Testing ---
+test:
+	@echo "[test] Running all tests..."
+	@python3 tests/test_hobypi_api.py --host localhost --port $(API_PORT)
+	@python3 tests/test_secured_api.py --host localhost --port $(API_PORT)
+
 test-api:
-	@echo "[test] Testing API endpoints..."
-	@python3 test_hobypi_api.py --host localhost --port $(API_PORT)
+	@echo "[test] Testing basic API endpoints..."
+	@python3 tests/test_hobypi_api.py --host localhost --port $(API_PORT)
 
 test-auth:
-	@echo "[test] Testing authentication flow..."
-	@python3 test_hobypi_api.py --host localhost --port $(API_PORT) --full
+	@echo "[test] Testing authentication and secured endpoints..."
+	@python3 tests/test_secured_api.py --host localhost --port $(API_PORT)
+
+test-auth-flow:
+	@echo "[test] Testing complete authentication flow..."
+	@python3 tests/test_hobypi_api.py --host localhost --port $(API_PORT) --full
 
 ensure-tools:
 	@sudo apt update -y && sudo apt install -y psmisc lsof curl jq
