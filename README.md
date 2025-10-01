@@ -6,16 +6,6 @@
 
 > A Raspberry Pi powered home-control stack with **React** & **FastAPI**
 
-> Built as a hobby project, evolving into a complete **home automation **🔑 Default User Accounts**
-| User | Username | Password | Scopes |
-|------|----------|----------|----------|
-| Admin | `admin` | `letmein` | Full access to all endpoints |
-| Viewer | `viewer` | `letmein` | Read-only system monitoring |trol hub**.
-
-# HobyPi
-
-> A Raspberry Pi powered home-control stack with **React** & **FastAPI**
-
 > Built as a hobby project, evolving into a complete **home automation & control hub**.
 
 ## Current Features
