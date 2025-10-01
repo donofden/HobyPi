@@ -44,9 +44,9 @@ def create_app() -> FastAPI:
     )
 
     # Include API routers
-    app.include_router(system.router, prefix="/system", tags=["System Monitoring"])
-    app.include_router(auth.router, tags=["Authentication"])
-    app.include_router(users.router, tags=["User Management"])
+    app.include_router(system.router, prefix="/system")
+    app.include_router(auth.router)
+    app.include_router(users.router)
 
     @app.on_event("startup")
     async def _on_startup():

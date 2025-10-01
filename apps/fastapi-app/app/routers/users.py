@@ -7,7 +7,7 @@ from app.core.security import get_current_user, hash_password
 from app.schemas.user import UserCreate, UserRead
 from app.models.user import User
 
-router = APIRouter(prefix="/users", tags=["users"])
+router = APIRouter(prefix="/users", tags=["User Management"])
 
 @router.get("", response_model=list[UserRead])
 async def list_users(

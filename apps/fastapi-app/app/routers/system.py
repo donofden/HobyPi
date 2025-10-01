@@ -19,7 +19,7 @@ from app.models.user import User
 # Create router with automatic OpenAPI tags
 router = APIRouter()
 
-@router.get("/health", tags=["System"])
+@router.get("/health", tags=["System Monitoring"])
 def health(
     current_user: User = Security(get_current_user, scopes=["system:read"])
 ):
@@ -33,7 +33,7 @@ def health(
     """
     return {"ok": True, "user": current_user.username}
 
-@router.get("/temp", tags=["System"])
+@router.get("/temp", tags=["System Monitoring"])
 def temp(
     current_user: User = Security(get_current_user, scopes=["system:read"])
 ):
@@ -52,7 +52,7 @@ def temp(
     """
     return build_temp_payload()
 
-@router.get("/metrics", tags=["System"])
+@router.get("/metrics", tags=["System Monitoring"])
 def metrics(
     sample_ms: int = Query(
         200, 

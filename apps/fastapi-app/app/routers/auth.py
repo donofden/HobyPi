@@ -7,7 +7,7 @@ from app.core.security import create_access_token, verify_password, get_current_
 from app.schemas.auth import LoginRequest, TokenResponse
 from app.models.user import User
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/login", response_model=TokenResponse)
 async def login(payload: LoginRequest, db: AsyncSession = Depends(get_session)):
