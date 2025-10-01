@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# HobyPi Configuration Checker
+
+set -euo pipefail
+
+FASTAPI_DIR="$HOME/HobyPi/apps/fastapi-app"
+
+if [[ ! -d "$FASTAPI_DIR/.venv" ]]; then
+    echo "❌ FastAPI virtual environment not found"
+    echo "💡 Run: ./scripts/bootstrap-fastapi.sh"
+    exit 1
+fi
+
+echo "🔍 HobyPi Configuration Status"
+echo "=" * 40
+
+# Check .env file
+ENV_FILE="$HOME/HobyPi/.env"
+if [[ -f "$ENV_FILE" ]]; then
+    echo "✅ Environment file: $ENV_FILE"
+    
+    # Show key configuration values (without secrets)
+    if grep -q "JWT_SECRET" "$ENV_FILE"; then
+        JWT_SECRET=$(grep "JWT_SECRET" "$ENV_FILE" | cut -d'=' -f2 | tr -d '"')
+        echo "✅ JWT Secret: ***${JWT_SECRET: -4}"
+    fi
+    
+    if grep -q "DATABASE_URL" "$ENV_FILE"; then
+        echo "✅ Database URL: configured"
+    fi
+    
+    if grep -q "BOOTSTRAP_ADMIN_USERNAME" "$ENV_FILE"; then
+        ADMIN_USER=$(grep "BOOTSTRAP_ADMIN_USERNAME" "$ENV_FILE" | cut -d'=' -f2)
+        echo "✅ Admin Username: $ADMIN_USER"
+    fi
+    
+else
+    echo "❌ Environment file missing: $ENV_FILE"
+    echo "💡 Run: cp .env.example .env"
+    exit 1
+fi
+
+echo ""
+echo "🎉 Configuration looks good!"
+echo "💡 Use 'make test' to verify API functionality"

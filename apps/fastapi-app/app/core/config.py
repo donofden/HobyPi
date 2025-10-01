@@ -15,9 +15,12 @@ from pydantic import Field
 from typing import List
 from dotenv import load_dotenv
 import os
+from pathlib import Path
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from .env file in project root
+project_root = Path(__file__).parent.parent.parent.parent  # Go up to HobyPi root
+env_path = project_root / ".env"
+load_dotenv(dotenv_path=env_path)
 
 class Settings(BaseSettings):
     """

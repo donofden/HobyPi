@@ -56,28 +56,35 @@ Start as a playground for coding hobbies → grow into a **home-control center**
 
 ## Getting Started
 
-### First-time Setup on a New Pi
+### Prerequisites
+- Raspberry Pi (4GB+ RAM recommended)
+- USB storage device for PostgreSQL data
+- Network connection
 
-### Clone repo
+### Quick Setup
+
 ```bash
-# 1) Clone to your home (~/hobypi)
+# 1) Clone the repository
 git clone https://github.com/donofden/hobypi.git 
+cd hobypi
 
-cd ~/hobypi
+# 2) Configure environment variables
+cp .env.example .env
+# Edit .env file with your preferred settings (optional for development)
 
-# 2) Make scripts executable
+# 3) Make scripts executable
 chmod +x scripts/* bin/*
 
-# 3) Run bootstrap (installs deps + global commands)
+# 4) Run bootstrap (installs dependencies + global commands)
 ./scripts/bootstrap.sh
-# NOTE: Please reboot your Raspberry Pi after this step
+# NOTE: Reboot your Raspberry Pi after this step
 sudo reboot
 
-# 4) Prepare USB storage for PostgreSQL
-# IMPORTANT: PostgreSQL requires external USB storage for better performance and reliability
+# 5) Prepare USB storage for PostgreSQL
+# IMPORTANT: PostgreSQL requires external USB storage for better performance
 # Follow the detailed guide: docs/PREPARE_USB_STORAGE.md
 
-# 5) Run bootstrap scripts for components
+# 6) Run component bootstrap scripts
 ./scripts/bootstrap-postgres.sh  # Configures PostgreSQL with USB storage
 ./scripts/bootstrap-fastapi.sh   # Sets up the FastAPI backend
 ./scripts/bootstrap-react-ui.sh  # Sets up the React frontend
@@ -108,6 +115,62 @@ From laptop on the same LAN:
   PGPASSWORD='postgres' psql -h 192.168.1.115 -p 5432 -U postgres -d hobypi -c 'SELECT 1;'
 ```
 
+---
+
+## Environment Configuration
+
+### Setting up your .env file
+
+Copy the example environment file and customize it for your setup:
+
+```bash
+cp .env.example .env
+nano .env  # Edit with your preferred settings
+```
+
+### Key Configuration Options
+
+**🔐 Security Settings (IMPORTANT)**
+```bash
+# Generate a secure JWT secret for production
+JWT_SECRET=your-super-secret-jwt-key-change-in-production-please
+
+# Default admin credentials (change in production)
+BOOTSTRAP_ADMIN_USERNAME=admin
+BOOTSTRAP_ADMIN_PASSWORD=letmein
+```
+
+**🐘 Database Configuration**
+```bash
+# PostgreSQL connection (adjust if needed)
+DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost/hobypi
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASS=postgres
+DB_NAME=hobypi
+```
+
+**🌐 Development Ports**
+```bash
+# Customize ports if needed
+REACT_PORT=3000
+API_PORT=8000
+```
+
+### Production Security Checklist
+
+For production deployment, make sure to:
+
+- ✅ **Generate a strong JWT secret**: `openssl rand -hex 32`
+- ✅ **Change default admin password** 
+- ✅ **Use secure database credentials**
+- ✅ **Configure proper CORS origins**
+- ✅ **Enable HTTPS** 
+- ✅ **Set up PostgreSQL authentication**
+
+---
+
 ## Development Workflow
 
 ### Start Development Servers
@@ -136,6 +199,11 @@ make test           # Run all tests
 make test-api       # Test basic API endpoints
 make test-auth      # Test authentication and secured endpoints
 make test-auth-flow # Test complete authentication flow
+```
+
+### Configuration
+```bash
+check_config        # Verify .env configuration
 ```
 
 ### View Logs

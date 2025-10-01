@@ -6,6 +6,14 @@ set -euo pipefail
 
 echo "=== HobyPi FastAPI Enhanced Bootstrap ==="
 
+# Check for .env file
+if [[ ! -f "$HOME/HobyPi/.env" ]]; then
+    echo "⚠️  No .env file found. Creating from example..."
+    cp "$HOME/HobyPi/.env.example" "$HOME/HobyPi/.env"
+    echo "✅ Created .env file from .env.example"
+    echo "💡 Edit $HOME/HobyPi/.env to customize your configuration"
+fi
+
 echo "=== Updating system ==="
 sudo apt update && sudo apt upgrade -y
 
