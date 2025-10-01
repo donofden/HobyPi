@@ -34,7 +34,8 @@ endef
         react-start api-start react-stop api-stop \
         start stop restart status logs-react logs-api \
         kill-react-port kill-api-port kill-ports kill-port kill--port killport \
-        react-restart api-restart clean-pids clean-logs ensure-tools
+        react-restart api-restart clean-pids clean-logs ensure-tools \
+        db-migrate db-revision test-api test-auth db-status
 
 help:
 	@echo "HobyPi dev commands:"
@@ -55,6 +56,11 @@ help:
 	@echo "  make ensure-tools       # install helpers (psmisc, lsof)"
 	@echo "  make clean-pids         # remove stale PIDG files"
 	@echo "  make clean-logs         # remove old logs"
+	@echo "  make db-migrate         # run database migrations"
+	@echo "  make db-revision MSG=#  # create new database migration"
+	@echo "  make db-status          # check PostgreSQL status"
+	@echo "  make test-api           # test API endpoints"
+	@echo "  make test-auth          # test authentication flow"
 	@echo "Overrides: REACT_PORT=4000 API_PORT=9000"
 
 init:
@@ -66,8 +72,39 @@ setup-react:
 	@cd "$(REACT_DIR)" && npm install
 
 setup-api:
+	setup-api:
 	@echo "[api] ensure venv + deps in $(FASTAPI_DIR)"
-	@cd "$(FASTAPI_DIR)" && { [ -d .venv ] || python3 -m venv .venv; . .venv/bin/activate; python -m pip install --upgrade pip; [ -f requirements.txt ] || printf "fastapi==0.115.2\nuvicorn[standard]==0.30.6\n" > requirements.txt; pip install -r requirements.txt; }
+	@cd "$(FASTAPI_DIR)" && { [ -d .venv ] || python3 -m venv .venv; . .venv/bin/activate; python -m pip install --upgrade pip; [ -f requirements.txt ] || printf "fastapi==0.115.2\nuvicorn[standard]==0.30.6\npsutil==5.9.8\npydantic-settings==2.5.2\nSQLAlchemy==2.0.*\nalembic==1.13.*\npython-dotenv==1.0.*\npasslib[bcrypt]==1.7.*\npython-jose==3.3.*\npsycopg[binary]==3.2.*\nasyncpg==0.29.*\n" > requirements.txt; pip install -r requirements.txt; }
+	@cd "$(FASTAPI_DIR)" && { [ -f .env ] || cp .env.example .env 2>/dev/null || true; }
+
+# --- Database Management ---
+db-migrate:
+	@echo "[db] running database migrations"
+	@cd "$(FASTAPI_DIR)" && . .venv/bin/activate && alembic upgrade head
+
+db-revision:
+	@test -n "$(MSG)" || { echo "Usage: make db-revision MSG='description'"; exit 1; }
+	@echo "[db] creating new migration: $(MSG)"
+	@cd "$(FASTAPI_DIR)" && . .venv/bin/activate && alembic revision -m "$(MSG)" --autogenerate
+
+db-status:
+	@echo "[db] PostgreSQL status:"
+	@systemctl is-active postgresql || echo "PostgreSQL is not running"
+	@echo "[db] Database connection test:"
+	@cd "$(FASTAPI_DIR)" && . .venv/bin/activate && python3 -c "import asyncio; from app.core.db import engine; print('✅ Database connection successful')" 2>/dev/null || echo "❌ Database connection failed"
+
+# --- API Testing ---
+test-api:
+	@echo "[test] Testing API endpoints..."
+	@python3 test_hobypi_api.py --host localhost --port $(API_PORT)
+
+test-auth:
+	@echo "[test] Testing authentication flow..."
+	@python3 test_hobypi_api.py --host localhost --port $(API_PORT) --full
+
+ensure-tools:
+	@sudo apt update -y && sudo apt install -y psmisc lsof curl jq
+	@echo "[tools] installed psmisc (fuser), lsof, curl, and jq"
 
 # --- START (use setsid so each runs in its own process group) ---
 react-start: init setup-react
