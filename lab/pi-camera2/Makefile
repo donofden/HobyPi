@@ -2,6 +2,7 @@ SHELL := /bin/bash
 PYTHON ?= python3
 VENV ?= .venv
 PIP := $(VENV)/bin/pip
+PIP_ENV := PYTHONWARNINGS=ignore PIP_DISABLE_PIP_VERSION_CHECK=1
 PY := $(VENV)/bin/python
 HOST ?= 0.0.0.0
 PORT ?= 8001
@@ -26,10 +27,18 @@ $(VENV)/bin/python:
 	$(PYTHON) -m venv --system-site-packages $(VENV)
 
 deps: $(VENV)/bin/python
-	$(PIP) install -U pip wheel
-	$(PIP) install -r requirements.txt
+	-$(PIP_ENV) $(PIP) uninstall -y send2trash >/dev/null 2>&1 || true
+	$(PIP_ENV) $(PIP) install -U pip wheel
+	$(PIP_ENV) $(PIP) install --break-system-packages send2trash==1.8.3
+	$(PIP_ENV) $(PIP) install -r requirements.txt
 
 run: deps
+	-@pids=$$(lsof -ti tcp:$(PORT) 2>/dev/null); \
+	if [ -n "$$pids" ]; then \
+		echo "Reclaiming port $(PORT) (pids: $$pids)"; \
+		kill $$pids || true; \
+		sleep 1; \
+	fi
 	$(PY) main.py serve --host $(HOST) --port $(PORT)
 
 reload: deps

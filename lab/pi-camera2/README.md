@@ -44,7 +44,7 @@ lab/pi-camera2/
 cd lab/pi-camera2
 cp .env.example .env       # adjust values for your setup
 make deps                  # create venv (with system site packages) and install FastAPI + helpers
-make run                   # start the FastAPI service (default 0.0.0.0:8001)
+make run                   # start the FastAPI service (reclaims port 8001 automatically)
 ```
 Then open `http://<pi-ip>:8001/` in a browser. The UI provides controls for streaming, snapshots, recording, flipping, and configuration changes. All operations are also exposed as REST endpoints under `/api/*` for programmatic use or robotics pipelines.
 
