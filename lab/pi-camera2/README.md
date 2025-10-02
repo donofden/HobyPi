@@ -43,7 +43,7 @@ lab/pi-camera2/
 ```bash
 cd lab/pi-camera2
 cp .env.example .env       # adjust values for your setup
-make deps                  # create venv and install FastAPI + helpers
+make deps                  # create venv (with system site packages) and install FastAPI + helpers
 make run                   # start the FastAPI service (default 0.0.0.0:8001)
 ```
 Then open `http://<pi-ip>:8001/` in a browser. The UI provides controls for streaming, snapshots, recording, flipping, and configuration changes. All operations are also exposed as REST endpoints under `/api/*` for programmatic use or robotics pipelines.
@@ -105,6 +105,7 @@ The loader honours `PI_CAMERA_ENV_FILE` if you want to point at an alternative c
 - If the stream fails with `503`, run `make free-camera` to release `/dev/video*` devices, then retry.
 - For permission errors, ensure your user belongs to the `video` group and reboot after installing camera packages.
 - Review `/api/logs` for contextual messages and check the terminal output from `uvicorn` for stack traces.
+- **ModuleNotFoundError: `libcamera` / `picamera2`**: Remove the existing virtualenv (`make clean`) and run `make deps` so the fresh environment inherits system site packages where the camera stack lives.
 
 ## How It Works
 - **config.CameraSettings** resolves environment variables once and provides strongly typed settings consumed by the rest of the stack.

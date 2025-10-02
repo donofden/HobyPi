@@ -36,22 +36,74 @@
     }
 
     .preview {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
       height: calc(100vh - 24px);
+      overflow: hidden;
+    }
+
+    .card.preview.stopped::after {
+      content: 'Stream stopped';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.65);
+      font-size: 18px;
+      letter-spacing: 0.05em;
     }
 
     img#view {
       max-width: 100%;
       max-height: 100%;
       border-radius: 8px;
+      object-fit: contain;
     }
 
-    .controls button,
-    .controls input,
-    .controls select {
-      margin: 4px 6px 4px 0;
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+    }
+
+    .panel {
+      background: #181818;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .status-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.65rem;
+      background: #0d0d0d;
+      border: 1px solid #2a2a2a;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
     }
 
     button {
@@ -61,32 +113,43 @@
       background: #161616;
       color: #fff;
       cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
     }
 
     button:hover {
       background: #1f1f1f;
     }
 
-    label {
-      margin-right: 6px;
-      font-weight: 600;
+    button.active {
+      background: #2c64ff;
+      border-color: #2c64ff;
     }
 
-    .row {
-      margin-bottom: 10px;
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
     }
 
-    .pill {
-      display: inline-block;
-      padding: 0.2rem 0.5rem;
-      background: #0b0b0b;
-      border: 1px solid #222;
-      border-radius: 999px;
-      margin: 2px 6px 0 0;
+    .field-inline {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    input[type="number"],
+    select {
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #333;
+      background: #0d0d0d;
+      color: inherit;
     }
 
     #logs {
-      height: 160px;
+      height: 180px;
       overflow: auto;
       font: 12px ui-monospace, Consolas, monospace;
       background: #0b0b0b;
@@ -96,14 +159,22 @@
       white-space: pre-line;
     }
 
-    a {
-      color: #9ad;
-    }
-
     ul {
       list-style: disc;
       padding-left: 18px;
       margin: 6px 0;
+    }
+
+    a {
+      color: #9ad;
+    }
+
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      margin-bottom: 10px;
     }
 
     @media (max-width: 900px) {
@@ -122,40 +193,62 @@
     <section class="card preview">
       <img id="view" src="stream.mjpg" alt="MJPEG Stream" />
     </section>
-    <aside class="card">
-      <div class="row">
-        <strong>Status</strong>
-        <div class="pill" id="st_name">name: -</div>
-        <div class="pill" id="st_run">running:false</div>
-        <div class="pill" id="st_pause">paused:false</div>
-        <div class="pill" id="st_rec">rec:off</div>
-        <div class="pill" id="st_flip">flip h:false v:false</div>
-        <div class="pill" id="st_cfg">-</div>
-        <div class="pill" id="st_op">op: idle</div>
-      </div>
-      <div class="controls">
-        <div class="row">
+    <aside class="card sidebar">
+      <section class="panel">
+        <h2>Status</h2>
+        <div class="status-pills">
+          <div class="pill" id="st_name">name: -</div>
+          <div class="pill" id="st_run">running:false</div>
+          <div class="pill" id="st_pause">paused:false</div>
+          <div class="pill" id="st_rec">rec:off</div>
+          <div class="pill" id="st_flip">flip h:false v:false</div>
+          <div class="pill" id="st_cfg">-</div>
+          <div class="pill" id="st_op">op: idle</div>
+        </div>
+        <div class="toggle">
+          <input type="checkbox" id="auto-refresh" checked />
+          <label for="auto-refresh">Auto refresh status & logs</label>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Live Controls</h2>
+        <div class="button-group" data-group="lifecycle">
           <button data-action="start">Start</button>
           <button data-action="pause">Pause</button>
           <button data-action="resume">Resume</button>
           <button data-action="stop">Stop</button>
         </div>
-        <div class="row">
+        <div class="button-group" data-group="flip">
           <button data-flip="h">Flip H</button>
           <button data-flip="v">Flip V</button>
           <button data-flip="none">Reset flip</button>
         </div>
-        <div class="row">
-          <button id="btn-snapshot">Snapshot</button>
-          <button id="btn-clear-snaps">Clear snaps</button>
+      </section>
+
+      <section class="panel">
+        <h2>Snapshots</h2>
+        <div class="button-group" data-group="snapshots">
+          <button id="btn-snapshot">Capture Snapshot</button>
+          <button id="btn-clear-snaps">Clear Snapshots</button>
         </div>
-        <div class="row">
-          <button data-record="start">Start Rec</button>
-          <button data-record="stop">Stop Rec</button>
-          <button id="btn-clear-videos">Clear videos</button>
+        <div id="snaps"><small>None.</small></div>
+      </section>
+
+      <section class="panel">
+        <h2>Recording</h2>
+        <div class="button-group" data-group="recording">
+          <button data-record="start">Start Recording</button>
+          <button data-record="stop">Stop Recording</button>
+          <button id="btn-clear-videos">Clear Videos</button>
         </div>
-        <div class="row">
-          <label for="preset">Preset</label>
+        <div id="vids"><small>None.</small></div>
+      </section>
+
+      <section class="panel">
+        <h2>Configuration</h2>
+        <div class="field-group">
+          <label for="preset">Resolution Presets</label>
           <select id="preset">
             <option>1280x720@30</option>
             <option>1920x1080@30</option>
@@ -163,27 +256,39 @@
             <option>640x480@30</option>
           </select>
         </div>
-        <div class="row">
-          <label>Custom</label>
-          <input id="w" type="number" value="1280" style="width: 90px" />
-          ×
-          <input id="h" type="number" value="720" style="width: 90px" />
-          @
-          <input id="fps" type="number" value="30" style="width: 70px" /> fps
+        <div class="field-group">
+          <label>Custom Dimensions</label>
+          <div class="field-inline">
+            <input id="w" type="number" value="1280" min="64" />
+            <span>×</span>
+            <input id="h" type="number" value="720" min="64" />
+            <span>@</span>
+            <input id="fps" type="number" value="30" min="1" />
+            <span>fps</span>
+          </div>
         </div>
-        <div class="row">
-          <label for="q">Quality</label>
-          <input id="q" type="number" min="10" max="100" value="80" style="width: 70px" />
-          <button id="btn-apply-config">Apply</button>
+        <div class="field-group">
+          <label for="q">JPEG Quality</label>
+          <div class="field-inline">
+            <input id="q" type="number" min="10" max="100" value="80" />
+            <button id="btn-apply-config">Apply</button>
+          </div>
         </div>
-        <div class="row"><small>Stream URL: <code><a href="stream.mjpg" target="_blank" rel="noreferrer">/stream.mjpg</a></code></small></div>
-        <div class="row"><strong>Snapshots</strong><div id="snaps"><small>None.</small></div></div>
-        <div class="row"><strong>Videos</strong><div id="vids"><small>None.</small></div></div>
-        <div class="row"><strong>Logs</strong><div id="logs"></div></div>
-      </div>
+        <small>Stream URL: <code><a href="stream.mjpg" target="_blank" rel="noreferrer">/stream.mjpg</a></code></small>
+      </section>
+
+      <section class="panel">
+        <h2>Logs</h2>
+        <div class="button-group" data-group="logs">
+          <button id="btn-refresh-logs">Refresh Logs</button>
+        </div>
+        <div id="logs"></div>
+      </section>
     </aside>
   </main>
   <script>
+    const BLANK_FRAME = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+
     // Basic fetch helper that throws on non-2xx responses so callers can handle errors uniformly.
     const fetchJson = async (url, options = {}) => {
       const response = await fetch(url, options);
@@ -199,7 +304,8 @@
 
     const updatePreviewCacheBust = () => {
       const img = document.getElementById('view');
-      const nextUrl = new URL(img.src, window.location.href);
+      const nextUrl = new URL(img.src || 'stream.mjpg', window.location.href);
+      nextUrl.pathname = 'stream.mjpg';
       nextUrl.searchParams.set('_', Date.now().toString());
       img.src = nextUrl.toString();
     };
@@ -231,6 +337,8 @@
       document.getElementById('h').value = state.config.height;
       document.getElementById('fps').value = state.config.fps;
       document.getElementById('q').value = state.config.quality;
+      updateButtonHighlights(state);
+      updatePreviewOverlay(state);
       return state;
     };
 
@@ -251,10 +359,40 @@
       el.scrollTop = el.scrollHeight;
     };
 
+    const updateButtonHighlights = (state) => {
+      const setActive = (selector, active) => {
+        document.querySelectorAll(selector).forEach((btn) => btn.classList.toggle('active', !!active));
+      };
+
+      setActive('[data-action="start"]', state.running);
+      setActive('[data-action="pause"]', state.paused);
+      setActive('[data-action="resume"]', state.running && !state.paused);
+      setActive('[data-action="stop"]', !state.running);
+      setActive('[data-record="start"]', state.recording.active);
+      setActive('[data-record="stop"]', !state.recording.active);
+    };
+
     const callAction = async (action) => {
       await getJson(`/api/${action}`);
-      updatePreviewCacheBust();
+      if (action === 'start' || action === 'resume') {
+        updatePreviewCacheBust();
+      }
       await Promise.all([refreshState(), refreshLogs()]);
+    };
+
+    const updatePreviewOverlay = (state) => {
+      const previewCard = document.querySelector('.card.preview');
+      const img = document.getElementById('view');
+      previewCard.classList.toggle('stopped', !state.running);
+      if (!state.running) {
+        img.dataset.paused = '1';
+        if (!img.src.startsWith('data:image')) {
+          img.src = BLANK_FRAME;
+        }
+      } else if (img.dataset.paused === '1') {
+        updatePreviewCacheBust();
+        delete img.dataset.paused;
+      }
     };
 
     const toggleFlip = async (mode) => {
@@ -323,6 +461,23 @@
       await Promise.all([refreshVideos(), refreshLogs()]);
     };
 
+    let autoRefresh = true;
+    let refreshTimer = null;
+
+    const scheduleAutoRefresh = () => {
+      if (refreshTimer) {
+        clearInterval(refreshTimer);
+        refreshTimer = null;
+      }
+      if (!autoRefresh) {
+        return;
+      }
+      refreshTimer = setInterval(() => {
+        refreshState().catch(() => {});
+        refreshLogs().catch(() => {});
+      }, 3000);
+    };
+
     const bootstrap = async () => {
       const state = await refreshState();
       document.title = `${state.settings.name} – Pi Camera`;
@@ -334,6 +489,7 @@
           console.warn('Auto-start failed', error);
         }
       }
+      scheduleAutoRefresh();
     };
 
     document.querySelectorAll('button[data-action]').forEach((button) => {
@@ -352,12 +508,17 @@
     document.getElementById('btn-clear-videos').addEventListener('click', clearVideos);
     document.getElementById('preset').addEventListener('change', applyPreset);
     document.getElementById('btn-apply-config').addEventListener('click', applyCustomConfig);
+    document.getElementById('btn-refresh-logs').addEventListener('click', () => refreshLogs());
+    document.getElementById('auto-refresh').addEventListener('change', (event) => {
+      autoRefresh = event.target.checked;
+      if (autoRefresh) {
+        refreshState().catch(() => {});
+        refreshLogs().catch(() => {});
+      }
+      scheduleAutoRefresh();
+    });
 
     bootstrap();
-    setInterval(() => {
-      refreshState().catch(() => {});
-      refreshLogs().catch(() => {});
-    }, 3000);
   </script>
 </body>
 </html>

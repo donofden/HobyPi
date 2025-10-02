@@ -23,17 +23,17 @@ install-system-deps:
 	./scripts/install_system_deps.sh
 
 $(VENV)/bin/python:
-	$(PYTHON) -m venv $(VENV)
+	$(PYTHON) -m venv --system-site-packages $(VENV)
 
 deps: $(VENV)/bin/python
 	$(PIP) install -U pip wheel
 	$(PIP) install -r requirements.txt
 
 run: deps
-	$(PY) -m uvicorn main:app --host $(HOST) --port $(PORT)
+	$(PY) main.py serve --host $(HOST) --port $(PORT)
 
 reload: deps
-	PI_CAMERA_RELOAD=1 ./scripts/run_server.sh
+	PI_CAMERA_RELOAD=1 $(PY) main.py serve --host $(HOST) --port $(PORT) --reload
 
 free-camera: deps
 	$(PY) main.py free-camera

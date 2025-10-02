@@ -68,7 +68,11 @@ def main() -> None:
     host = args.host or settings.host
     port = args.port or settings.port
     if _port_in_use(host, port):
-        print(f"Port {port} is already in use on {"127.0.0.1" if host in {"0.0.0.0", "::", ""} else host}. "              "Set PI_CAMERA_PORT or pass --port to select a different port.")
+        display_host = '127.0.0.1' if host in {'0.0.0.0', '::', ''} else host
+        print(
+            f'Port {port} is already in use on {display_host}. '
+            'Set PI_CAMERA_PORT or pass --port to select a different port.'
+        )
         return
 
     app = create_app(settings)

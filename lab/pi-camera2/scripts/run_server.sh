@@ -20,7 +20,7 @@ if [[ -z "$PYTHON_BIN" ]]; then
 fi
 
 if [[ ${#EXTRA_ARGS[@]} -gt 0 ]]; then
-  "$PYTHON_BIN" -m uvicorn main:app --host "$HOST" --port "$PORT" "${EXTRA_ARGS[@]}"
+  "$PYTHON_BIN" main.py serve --host "$HOST" --port "$PORT" "${EXTRA_ARGS[@]}"
 else
-  "$PYTHON_BIN" -m uvicorn main:app --host "$HOST" --port "$PORT"
+  "$PYTHON_BIN" main.py serve --host "$HOST" --port "$PORT"
 fi

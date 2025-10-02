@@ -490,8 +490,9 @@ class CameraController:
 
         if not self.settings.enable_stream:
             raise RuntimeError("Streaming disabled via configuration")
-        self.ensure_stream()
         with self.lock:
+            if not self.running:
+                raise RuntimeError("Stream not running")
             output = self.streaming_output
         if output is None:
             raise RuntimeError("Stream output not ready")
@@ -499,9 +500,10 @@ class CameraController:
         try:
             while True:
                 with output.condition:
-                    # Block until the MJPEG encoder publishes a fresh frame.
-                    output.condition.wait()
+                    output.condition.wait(timeout=0.5)
                     frame = output.frame
+                if not self.running:
+                    break
                 if not frame:
                     continue
                 # Emit a multipart segment compatible with ``multipart/x-mixed-replace``.
@@ -594,9 +596,14 @@ class CameraController:
             self.log.add(f"stop stream error: {exc}")
         self.running = False
         self.paused_flag.clear()
+        prev_output = self.streaming_output
         self.jpeg_encoder = None
         self.jpeg_sink = None
         self.streaming_output = None
+        if prev_output is not None:
+            with prev_output.condition:
+                prev_output.frame = None
+                prev_output.condition.notify_all()
 
     def _start_stream_locked(self) -> None:
         """Start streaming internals; caller must hold ``self.lock``.

@@ -12,6 +12,13 @@ from fastapi.staticfiles import StaticFiles
 from .config import CameraSettings, PROJECT_ROOT, load_settings
 from .controller import CameraController
 
+TAGS_METADATA = [
+    {"name": "diagnostics", "description": "Health checks and log inspection."},
+    {"name": "stream", "description": "Endpoints that deliver the live MJPEG stream."},
+    {"name": "control", "description": "Camera lifecycle, configuration, and flip controls."},
+    {"name": "media", "description": "Snapshot and recording management."},
+]
+
 UI_INDEX = PROJECT_ROOT / "app/ui/index.html"
 
 
