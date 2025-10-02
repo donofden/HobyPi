@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pi Camera – Control Panel</title>
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #000;
+      color: #ddd;
+      font: 14px system-ui, "Segoe UI", Arial, sans-serif;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 12px;
+      min-height: 100vh;
+      padding: 12px;
+    }
+
+    .card {
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .preview {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: calc(100vh - 24px);
+    }
+
+    img#view {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 8px;
+    }
+
+    .controls button,
+    .controls input,
+    .controls select {
+      margin: 4px 6px 4px 0;
+    }
+
+    button {
+      padding: 0.55rem 0.9rem;
+      border-radius: 10px;
+      border: 1px solid #444;
+      background: #161616;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1f1f1f;
+    }
+
+    label {
+      margin-right: 6px;
+      font-weight: 600;
+    }
+
+    .row {
+      margin-bottom: 10px;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      background: #0b0b0b;
+      border: 1px solid #222;
+      border-radius: 999px;
+      margin: 2px 6px 0 0;
+    }
+
+    #logs {
+      height: 160px;
+      overflow: auto;
+      font: 12px ui-monospace, Consolas, monospace;
+      background: #0b0b0b;
+      border: 1px solid #222;
+      padding: 6px;
+      border-radius: 8px;
+      white-space: pre-line;
+    }
+
+    a {
+      color: #9ad;
+    }
+
+    ul {
+      list-style: disc;
+      padding-left: 18px;
+      margin: 6px 0;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .preview {
+        height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="card preview">
+      <img id="view" src="stream.mjpg" alt="MJPEG Stream" />
+    </section>
+    <aside class="card">
+      <div class="row">
+        <strong>Status</strong>
+        <div class="pill" id="st_name">name: -</div>
+        <div class="pill" id="st_run">running:false</div>
+        <div class="pill" id="st_pause">paused:false</div>
+        <div class="pill" id="st_rec">rec:off</div>
+        <div class="pill" id="st_flip">flip h:false v:false</div>
+        <div class="pill" id="st_cfg">-</div>
+        <div class="pill" id="st_op">op: idle</div>
+      </div>
+      <div class="controls">
+        <div class="row">
+          <button data-action="start">Start</button>
+          <button data-action="pause">Pause</button>
+          <button data-action="resume">Resume</button>
+          <button data-action="stop">Stop</button>
+        </div>
+        <div class="row">
+          <button data-flip="h">Flip H</button>
+          <button data-flip="v">Flip V</button>
+          <button data-flip="none">Reset flip</button>
+        </div>
+        <div class="row">
+          <button id="btn-snapshot">Snapshot</button>
+          <button id="btn-clear-snaps">Clear snaps</button>
+        </div>
+        <div class="row">
+          <button data-record="start">Start Rec</button>
+          <button data-record="stop">Stop Rec</button>
+          <button id="btn-clear-videos">Clear videos</button>
+        </div>
+        <div class="row">
+          <label for="preset">Preset</label>
+          <select id="preset">
+            <option>1280x720@30</option>
+            <option>1920x1080@30</option>
+            <option>1640x1232@30</option>
+            <option>640x480@30</option>
+          </select>
+        </div>
+        <div class="row">
+          <label>Custom</label>
+          <input id="w" type="number" value="1280" style="width: 90px" />
+          ×
+          <input id="h" type="number" value="720" style="width: 90px" />
+          @
+          <input id="fps" type="number" value="30" style="width: 70px" /> fps
+        </div>
+        <div class="row">
+          <label for="q">Quality</label>
+          <input id="q" type="number" min="10" max="100" value="80" style="width: 70px" />
+          <button id="btn-apply-config">Apply</button>
+        </div>
+        <div class="row"><small>Stream URL: <code><a href="stream.mjpg" target="_blank" rel="noreferrer">/stream.mjpg</a></code></small></div>
+        <div class="row"><strong>Snapshots</strong><div id="snaps"><small>None.</small></div></div>
+        <div class="row"><strong>Videos</strong><div id="vids"><small>None.</small></div></div>
+        <div class="row"><strong>Logs</strong><div id="logs"></div></div>
+      </div>
+    </aside>
+  </main>
+  <script>
+    // Basic fetch helper that throws on non-2xx responses so callers can handle errors uniformly.
+    const fetchJson = async (url, options = {}) => {
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || response.statusText);
+      }
+      return response.json();
+    };
+
+    const getJson = (url) => fetchJson(url);
+    const postJson = (url) => fetchJson(url, { method: 'POST' });
+
+    const updatePreviewCacheBust = () => {
+      const img = document.getElementById('view');
+      const nextUrl = new URL(img.src, window.location.href);
+      nextUrl.searchParams.set('_', Date.now().toString());
+      img.src = nextUrl.toString();
+    };
+
+    const renderList = (selector, files, basePath) => {
+      const container = document.querySelector(selector);
+      if (!files.length) {
+        container.innerHTML = '<small>None.</small>';
+        return;
+      }
+      const items = files
+        .map((file) => `<li><a target="_blank" rel="noreferrer" href="${basePath}/${encodeURIComponent(file)}">${file}</a></li>`)
+        .join('');
+      container.innerHTML = `<ul>${items}</ul>`;
+    };
+
+    const refreshState = async () => {
+      const state = await getJson('/api/state');
+      document.getElementById('st_name').textContent = `name:${state.settings.name}`;
+      document.getElementById('st_run').textContent = `running:${state.running}`;
+      document.getElementById('st_pause').textContent = `paused:${state.paused}`;
+      document.getElementById('st_rec').textContent = state.recording.active
+        ? `rec:on(${state.recording.file})`
+        : 'rec:off';
+      document.getElementById('st_flip').textContent = `flip h:${state.hflip} v:${state.vflip}`;
+      document.getElementById('st_cfg').textContent = `${state.config.width}x${state.config.height}@${state.config.fps} q=${state.config.quality}`;
+      document.getElementById('st_op').textContent = `op: ${state.op.status}`;
+      document.getElementById('w').value = state.config.width;
+      document.getElementById('h').value = state.config.height;
+      document.getElementById('fps').value = state.config.fps;
+      document.getElementById('q').value = state.config.quality;
+      return state;
+    };
+
+    const refreshSnapshots = async () => {
+      const data = await getJson('/api/snaps');
+      renderList('#snaps', data.files, '/snapshots');
+    };
+
+    const refreshVideos = async () => {
+      const data = await getJson('/api/videos');
+      renderList('#vids', data.files, '/videos');
+    };
+
+    const refreshLogs = async () => {
+      const data = await getJson('/api/logs');
+      const el = document.getElementById('logs');
+      el.textContent = data.lines.join('\n');
+      el.scrollTop = el.scrollHeight;
+    };
+
+    const callAction = async (action) => {
+      await getJson(`/api/${action}`);
+      updatePreviewCacheBust();
+      await Promise.all([refreshState(), refreshLogs()]);
+    };
+
+    const toggleFlip = async (mode) => {
+      const state = await getJson('/api/state');
+      let hflip = state.hflip;
+      let vflip = state.vflip;
+      if (mode === 'h') hflip = !hflip;
+      else if (mode === 'v') vflip = !vflip;
+      else {
+        hflip = false;
+        vflip = false;
+      }
+      await getJson(`/api/flip?h=${hflip ? 1 : 0}&v=${vflip ? 1 : 0}`);
+      updatePreviewCacheBust();
+      await Promise.all([refreshState(), refreshLogs()]);
+    };
+
+    const captureSnapshot = async () => {
+      try {
+        await getJson('/api/snapshot');
+      } catch (error) {
+        alert(`Snapshot failed: ${error.message}`);
+      }
+      await Promise.all([refreshSnapshots(), refreshLogs()]);
+    };
+
+    const handleRecording = async (command) => {
+      try {
+        await getJson(`/api/record?cmd=${encodeURIComponent(command)}`);
+      } catch (error) {
+        alert(`Recording failed: ${error.message}`);
+      }
+      await Promise.all([refreshState(), refreshVideos(), refreshLogs()]);
+    };
+
+    const applyPreset = () => {
+      const value = document.getElementById('preset').value;
+      const [wh, fps] = value.split('@');
+      const [width, height] = wh.split('x');
+      document.getElementById('w').value = width;
+      document.getElementById('h').value = height;
+      document.getElementById('fps').value = fps;
+    };
+
+    const applyCustomConfig = async () => {
+      const width = Number(document.getElementById('w').value);
+      const height = Number(document.getElementById('h').value);
+      const fps = Number(document.getElementById('fps').value);
+      const quality = Number(document.getElementById('q').value);
+      try {
+        await getJson(`/api/config?width=${width}&height=${height}&fps=${fps}&quality=${quality}`);
+      } catch (error) {
+        alert(`Config update failed: ${error.message}`);
+      }
+      updatePreviewCacheBust();
+      await Promise.all([refreshState(), refreshLogs()]);
+    };
+
+    const clearSnapshots = async () => {
+      await postJson('/api/snaps/clear');
+      await Promise.all([refreshSnapshots(), refreshLogs()]);
+    };
+
+    const clearVideos = async () => {
+      await postJson('/api/videos/clear');
+      await Promise.all([refreshVideos(), refreshLogs()]);
+    };
+
+    const bootstrap = async () => {
+      const state = await refreshState();
+      document.title = `${state.settings.name} – Pi Camera`;
+      await Promise.all([refreshSnapshots(), refreshVideos(), refreshLogs()]);
+      if (!state.running) {
+        try {
+          await getJson('/api/start');
+        } catch (error) {
+          console.warn('Auto-start failed', error);
+        }
+      }
+    };
+
+    document.querySelectorAll('button[data-action]').forEach((button) => {
+      button.addEventListener('click', () => callAction(button.dataset.action));
+    });
+
+    document.querySelectorAll('button[data-flip]').forEach((button) => {
+      button.addEventListener('click', () => toggleFlip(button.dataset.flip));
+    });
+
+    document.getElementById('btn-snapshot').addEventListener('click', captureSnapshot);
+    document.getElementById('btn-clear-snaps').addEventListener('click', clearSnapshots);
+    document.querySelectorAll('button[data-record]').forEach((button) => {
+      button.addEventListener('click', () => handleRecording(button.dataset.record));
+    });
+    document.getElementById('btn-clear-videos').addEventListener('click', clearVideos);
+    document.getElementById('preset').addEventListener('change', applyPreset);
+    document.getElementById('btn-apply-config').addEventListener('click', applyCustomConfig);
+
+    bootstrap();
+    setInterval(() => {
+      refreshState().catch(() => {});
+      refreshLogs().catch(() => {});
+    }, 3000);
+  </script>
+</body>
+</html>
