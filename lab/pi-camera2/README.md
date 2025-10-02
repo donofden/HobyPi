@@ -4,11 +4,11 @@ This module packages the advanced camera control server into a reusable, standal
 
 Sample Screen & Controls:
 <p align="center">
-  <img src="docs/Ginger.png" alt="HobyPi" width="400">
+  <img src="docs/Ginger.png" alt="HobyPi">
 </p>
 
 <p align="center">
-  <img src="docs/Ginger_interested.png" alt="HobyPi" width="400">
+  <img src="docs/Ginger_interested.png" alt="HobyPi">
 </p>
 
 ## Highlights
