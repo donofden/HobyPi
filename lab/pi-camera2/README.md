@@ -2,6 +2,15 @@
 
 This module packages the advanced camera control server into a reusable, standalone FastAPI application. It is designed for the `HobyPi` lab workspace so that you can bring up a Pi camera quickly, tweak settings, debug hardware, or reuse the control surface across future projects.
 
+Sample Screen & Controls:
+<p align="center">
+  <img src="docs/Ginger.png" alt="HobyPi" width="400">
+</p>
+
+<p align="center">
+  <img src="docs/Ginger_interested.png" alt="HobyPi" width="400">
+</p>
+
 ## Highlights
 - ✅ **Production-ready structure** with configuration, controller, and FastAPI layers.
 - ✅ **Environment-driven setup** (`.env`) that selects the camera, resolution, frame rate, storage paths, and feature toggles.
