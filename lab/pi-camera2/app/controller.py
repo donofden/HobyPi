@@ -5,16 +5,17 @@ import io
 import time
 from pathlib import Path
 from threading import Condition, Event, Lock
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 try:
-    from libcamera import Transform  # type: ignore
+    from libcamera import Transform, controls  # type: ignore
     from picamera2 import Picamera2  # type: ignore
     from picamera2.encoders import H264Encoder, JpegEncoder  # type: ignore
     from picamera2.outputs import FileOutput, FfmpegOutput  # type: ignore
 except ImportError as exc:  # pragma: no cover - import guard for environments without camera stack
     Picamera2 = None  # type: ignore
     Transform = None  # type: ignore
+    controls = None  # type: ignore
     JpegEncoder = None  # type: ignore
     H264Encoder = None  # type: ignore
     FileOutput = None  # type: ignore
@@ -136,6 +137,14 @@ class CameraController:
         self.rec_active = False
         self.rec_file: Optional[str] = None
         self._last_operation = "idle"
+        self.zoom_factor: float = 1.0
+        self.focus_mode: str = "continuous"
+        self.lens_position: Optional[float] = None
+        self.ae_enabled: bool = True
+        self.awb_enabled: bool = True
+        self.manual_exposure: Optional[int] = None
+        self.manual_gain: Optional[float] = None
+        self.last_metadata: Dict[str, Any] = {}
 
         self.width = settings.width
         self.height = settings.height
@@ -149,6 +158,7 @@ class CameraController:
         self.jpeg_sink: Optional[FileOutput] = None
         self.h264_encoder: Optional[H264Encoder] = None
         self.record_output: Optional[FfmpegOutput] = None
+        self.sensor_size: Optional[tuple[int, int]] = None
 
         self.log.add("Controller instantiated")
 
@@ -357,6 +367,10 @@ class CameraController:
                 self._stop_stream_locked()
             if self.settings.enable_stream:
                 self._start_stream_locked()
+                try:
+                    self._apply_zoom_locked()
+                except Exception as exc:
+                    self.log.add(f"zoom apply error: {exc}")
             if was_recording and self.settings.enable_recording:
                 self._start_recording_locked()
 
@@ -410,6 +424,19 @@ class CameraController:
                 "device": self.settings.camera_device,
                 "snapshots_enabled": self.settings.enable_snapshots,
                 "recording_enabled": self.settings.enable_recording,
+            },
+            "advanced": {
+                "zoom": self.zoom_factor,
+                "focus": {
+                    "mode": self.focus_mode,
+                    "lens_position": self.lens_position,
+                },
+            },
+            "quality": {
+                "ae": self.ae_enabled,
+                "awb": self.awb_enabled,
+                "exposure": self.manual_exposure,
+                "gain": self.manual_gain,
             },
         }
 
@@ -539,6 +566,14 @@ class CameraController:
         if self.settings.sensor_id:
             kwargs["sensor_id"] = self.settings.sensor_id
         self.picam2 = Picamera2(**kwargs)
+        try:
+            props = self.picam2.camera_properties
+            size = props.get("PixelArraySize")
+            dims = self._coerce_dimensions(size)
+            if dims:
+                self.sensor_size = dims
+        except Exception:
+            self.sensor_size = None
 
     def _build_config(self):
         """Create a libcamera configuration for the current dimensions.
@@ -621,6 +656,10 @@ class CameraController:
         self.jpeg_sink = FileOutput(io.BufferedWriter(self.streaming_output, buffer_size=1024 * 1024))
         assert self.picam2 is not None
         self.picam2.configure(self._build_config())
+        try:
+            self._apply_zoom_locked()
+        except Exception as exc:
+            self.log.add(f"zoom apply error: {exc}")
         self.picam2.start_recording(self.jpeg_encoder, self.jpeg_sink)
         self.running = True
         self.paused_flag.clear()
@@ -707,6 +746,190 @@ class CameraController:
             except (IndexError, ValueError):
                 return None
         return None
+
+    # ------------------------------------------------------------------
+    # advanced controls
+    # ------------------------------------------------------------------
+    def capture_metadata(self) -> Dict[str, Any]:
+        """Capture and cache the latest metadata frame."""
+
+        with self.lock:
+            if not self.picam2:
+                raise RuntimeError("Camera not initialised")
+            try:
+                meta = self.picam2.capture_metadata()
+            except Exception as exc:
+                self.log.add(f"metadata error: {exc}")
+                raise
+            formatted = {}
+            if meta:
+                try:
+                    for key, value in meta.items():
+                        name = getattr(key, "name", None)
+                        formatted[name or str(key)] = value
+                except Exception:
+                    formatted = dict(meta)
+            self.last_metadata = formatted
+            return self.last_metadata
+
+    def set_focus(self, mode: str, *, lens_position: Optional[float] = None) -> None:
+        """Adjust autofocus mode and optional manual lens position."""
+
+        if controls is None:
+            raise RuntimeError("libcamera controls unavailable")
+        with self.lock:
+            if not self.picam2:
+                raise RuntimeError("Camera not initialised")
+            ctrl: Dict[str, Any] = {}
+            if mode == "auto":
+                ctrl["AfMode"] = controls.AfModeEnum.Auto
+                ctrl["AfTrigger"] = controls.AfTriggerEnum.Start
+            elif mode == "continuous":
+                ctrl["AfMode"] = controls.AfModeEnum.Continuous
+            elif mode == "manual":
+                ctrl["AfMode"] = controls.AfModeEnum.Manual
+                if lens_position is not None:
+                    ctrl["LensPosition"] = float(lens_position)
+            else:
+                raise ValueError("Unsupported focus mode")
+            try:
+                self.picam2.set_controls(ctrl)
+            except Exception as exc:
+                self.log.add(f"focus error: {exc}")
+                raise
+            self.focus_mode = mode
+            self.lens_position = float(lens_position) if mode == "manual" and lens_position is not None else None
+            self._set_operation(f"focus mode {mode}")
+
+    def set_zoom(self, factor: float) -> None:
+        """Apply a digital zoom factor (1.0 = native)."""
+
+        factor = max(1.0, min(factor, 4.0))
+        with self.lock:
+            self.zoom_factor = factor
+            if not self.picam2:
+                return
+        try:
+            self._apply_zoom_locked()
+        except Exception as exc:
+            self.log.add(f"zoom error: {exc}")
+            raise
+        self._set_operation(f"zoom {factor:.1f}x")
+
+    def set_quality_controls(
+        self,
+        *,
+        ae_enable: Optional[bool] = None,
+        awb_enable: Optional[bool] = None,
+        exposure: Optional[int] = None,
+        gain: Optional[float] = None,
+    ) -> None:
+        """Adjust exposure/white balance behaviour."""
+
+        with self.lock:
+            if not self.picam2:
+                raise RuntimeError("Camera not initialised")
+            ctrl: Dict[str, Any] = {}
+            if ae_enable is not None:
+                ctrl["AeEnable"] = bool(ae_enable)
+                self.ae_enabled = bool(ae_enable)
+                if self.ae_enabled:
+                    self.manual_exposure = None
+                    self.manual_gain = None
+            if awb_enable is not None:
+                ctrl["AwbEnable"] = bool(awb_enable)
+                self.awb_enabled = bool(awb_enable)
+            if not self.ae_enabled:
+                if exposure is not None:
+                    ctrl["ExposureTime"] = int(exposure)
+                    self.manual_exposure = int(exposure)
+                if gain is not None:
+                    ctrl["AnalogueGain"] = float(gain)
+                    self.manual_gain = float(gain)
+            try:
+                if ctrl:
+                    self.picam2.set_controls(ctrl)
+            except Exception as exc:
+                self.log.add(f"quality control error: {exc}")
+                raise
+            self._set_operation("quality controls updated")
+
+    @staticmethod
+    def _coerce_dimensions(value: Any) -> Optional[tuple[int, int]]:
+        """Return a ``(width, height)`` pair when possible."""
+
+        if value is None:
+            return None
+        if isinstance(value, (list, tuple)) and len(value) >= 2:
+            try:
+                return int(value[0]), int(value[1])
+            except (TypeError, ValueError):
+                return None
+        width = getattr(value, "width", None)
+        height = getattr(value, "height", None)
+        if width is not None and height is not None:
+            try:
+                return int(width), int(height)
+            except (TypeError, ValueError):
+                return None
+        size = getattr(value, "size", None)
+        if size is not None and size is not value:
+            return CameraController._coerce_dimensions(size)
+        return None
+
+    def _resolve_sensor_dimensions(self) -> Optional[tuple[int, int]]:
+        """Best-effort lookup for the active sensor bounds."""
+
+        if self.sensor_size:
+            return self.sensor_size
+        if not self.picam2:
+            return None
+        try:
+            config = self.picam2.camera_configuration()
+        except Exception as exc:
+            self.log.add(f"camera_configuration error: {exc}")
+            return None
+
+        if isinstance(config, dict):
+            main_cfg = config.get("main")
+            if isinstance(main_cfg, dict):
+                dims = self._coerce_dimensions(main_cfg.get("size"))
+                if dims:
+                    return dims
+        else:
+            main_cfg = getattr(config, "main", None)
+            dims = self._coerce_dimensions(main_cfg)
+            if dims:
+                return dims
+            if main_cfg is not None and not isinstance(main_cfg, dict):
+                dims = self._coerce_dimensions(getattr(main_cfg, "size", None))
+                if dims:
+                    return dims
+            try:
+                dims = self._coerce_dimensions(config["main"]["size"])  # type: ignore[index]
+                if dims:
+                    return dims
+            except Exception:
+                pass
+        return None
+
+    def _apply_zoom_locked(self) -> None:
+        """Reapply the current zoom factor (lock must be held)."""
+
+        if not self.picam2:
+            return
+        base = self._resolve_sensor_dimensions()
+        if not base:
+            return
+        sensor_w, sensor_h = int(base[0]), int(base[1])
+        factor = max(1.0, float(self.zoom_factor))
+        crop_w = max(16, int(sensor_w / factor))
+        crop_h = max(16, int(sensor_h / factor))
+        crop_w -= crop_w % 2
+        crop_h -= crop_h % 2
+        x = max(0, (sensor_w - crop_w) // 2)
+        y = max(0, (sensor_h - crop_h) // 2)
+        self.picam2.set_controls({"ScalerCrop": (x, y, crop_w, crop_h)})
 
 
 __all__ = ["CameraController", "RingLog", "StreamingOutput"]

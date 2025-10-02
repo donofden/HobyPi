@@ -17,6 +17,9 @@ Sample Screen & Controls:
 - ✅ **MJPEG live preview**, snapshots, and optional H.264 recording with bitrate control.
 - ✅ **REST API + single-page UI** mirroring the original capabilities.
 - ✅ **Automation aids**: Makefile targets and shell scripts for freeing the camera and installing dependencies.
+- ✅ **Advanced controls**: Focus/zoom adjustments, timestamp overlay, and quick metadata capture.
+- ✅ **Quality & performance** toggles for exposure and white balance.
+- ✅ **Snapshot/video thumbnails** in the control panel for rapid review.
 
 ## Repository Layout
 ```
@@ -69,6 +72,10 @@ Then open `http://<pi-ip>:8001/` in a browser. The UI provides controls for stre
 - `GET /api/config` – Return current resolution/fps/quality.
 - `GET /api/config?width=...&height=...&fps=...&quality=...` – Apply a new configuration.
 - `GET /api/logs` – Retrieve recent operations from the ring buffer.
+- `GET /api/metadata` – Capture and return the latest Picamera2 metadata snapshot.
+- `POST /api/advanced/focus` – Switch autofocus modes or set a manual lens position.
+- `POST /api/advanced/zoom` – Apply a digital zoom factor between 1× and 4×.
+- `POST /api/advanced/exposure` – Toggle AE/AWB or push manual exposure and analogue gain values.
 
 Endpoints respond with JSON and standard HTTP errors (400/403/500) when an operation is disallowed or fails.
 
@@ -104,6 +111,22 @@ The loader honours `PI_CAMERA_ENV_FILE` if you want to point at an alternative c
 - `make free-camera` or `scripts/free_camera.sh` runs the same logic as the legacy helper to stop PipeWire and kill processes holding `/dev/video*`/`/dev/media*`.
 - `make resume-desktop` restarts the PipeWire stack when you are done testing.
 - `scripts/run_server.sh` wraps uvicorn and honours `PI_CAMERA_RELOAD=1` for development auto-reload.
+
+## Advanced Controls
+- Toggle a live timestamp overlay directly over the stream.
+- Switch focus modes (auto, continuous, manual) and dial in manual lens positions when required.
+- Apply digital zoom (1×–4×) without leaving the browser.
+- Fetch the latest libcamera metadata snapshot for diagnostics.
+
+## Quality & Performance
+- Enable/disable auto exposure (AE) and auto white balance (AWB) independently.
+- When AE is disabled, supply manual exposure time (µs) and analogue gain values.
+- Visual cues in the UI highlight the active configuration.
+
+## UI/UX Enhancements
+- Snapshot and recording sections display thumbnail previews of the most recent captures.
+- Control buttons surface inline loaders while API calls are in-flight, preventing accidental double triggers.
+- Accordion layout keeps advanced options nearby without overwhelming the default view.
 
 ## Extending the Module
 - **Multiple cameras**: duplicate `.env` files per setup and export `PI_CAMERA_ENV_FILE=/path/to/config.env` before running `make run`.

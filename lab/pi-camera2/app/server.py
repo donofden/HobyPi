@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Optional
 
-from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response, status
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -17,6 +17,8 @@ TAGS_METADATA = [
     {"name": "stream", "description": "Endpoints that deliver the live MJPEG stream."},
     {"name": "control", "description": "Camera lifecycle, configuration, and flip controls."},
     {"name": "media", "description": "Snapshot and recording management."},
+    {"name": "advanced", "description": "Advanced camera controls such as focus and zoom."},
+    {"name": "quality", "description": "Image quality and exposure adjustments."},
 ]
 
 UI_INDEX = PROJECT_ROOT / "app/ui/index.html"
@@ -73,6 +75,7 @@ def create_app(settings: Optional[CameraSettings] = None) -> FastAPI:
     # Expose media directories for direct downloads
     app.mount("/snapshots", StaticFiles(directory=settings.snapshot_dir), name="snapshots")
     app.mount("/videos", StaticFiles(directory=settings.video_dir), name="videos")
+    app.mount("/ui", StaticFiles(directory=PROJECT_ROOT / "app/ui"), name="ui")
 
     def get_controller(request: Request) -> CameraController:
         return request.app.state.controller  # type: ignore[attr-defined]
@@ -258,6 +261,16 @@ def create_app(settings: Optional[CameraSettings] = None) -> FastAPI:
         rel = path.name
         return {"ok": True, "file": rel, "url": f"/snapshots/{rel}"}
 
+    @app.get("/api/metadata", tags=["advanced"])
+    def api_metadata(controller: CameraController = Depends(get_controller)) -> dict:
+        """Capture the latest camera metadata frame."""
+
+        try:
+            data = controller.capture_metadata()
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=str(exc)) from exc
+        return {"metadata": data}
+
     @app.get("/api/snaps", tags=["media"])
     def api_snaps(controller: CameraController = Depends(get_controller)) -> dict:
         """Enumerate available snapshots.
@@ -369,6 +382,57 @@ def create_app(settings: Optional[CameraSettings] = None) -> FastAPI:
             )
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=str(exc)) from exc
+        return {"ok": True}
+
+    @app.post("/api/advanced/focus", tags=["advanced"])
+    async def api_focus(request: Request, controller: CameraController = Depends(get_controller)) -> dict:
+        payload = await request.json()
+        mode = (payload.get("mode") or "").lower()
+        if mode not in {"auto", "continuous", "manual"}:
+            raise HTTPException(status_code=400, detail="mode must be auto, continuous, or manual")
+        lens_position = payload.get("lens_position")
+        if lens_position is not None:
+            try:
+                lens_position = float(lens_position)
+            except (TypeError, ValueError):
+                raise HTTPException(status_code=400, detail="lens_position must be numeric") from None
+        try:
+            controller.set_focus(mode, lens_position=lens_position)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=str(exc)) from exc
+        return {"ok": True, "mode": controller.focus_mode, "lens_position": controller.lens_position}
+
+    @app.post("/api/advanced/zoom", tags=["advanced"])
+    async def api_zoom(request: Request, controller: CameraController = Depends(get_controller)) -> dict:
+        payload = await request.json()
+        try:
+            factor = float(payload.get("factor", 1.0))
+        except (TypeError, ValueError):
+            raise HTTPException(status_code=400, detail="factor must be numeric") from None
+        try:
+            controller.set_zoom(factor)
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=str(exc)) from exc
+        return {"ok": True, "factor": controller.zoom_factor}
+
+    @app.post("/api/advanced/exposure", tags=["quality"])
+    async def api_exposure(request: Request, controller: CameraController = Depends(get_controller)) -> dict:
+        payload = await request.json()
+        ae = payload.get("ae")
+        awb = payload.get("awb")
+        exposure = payload.get("exposure")
+        gain = payload.get("gain")
+        try:
+            controller.set_quality_controls(
+                ae_enable=bool(ae) if ae is not None else None,
+                awb_enable=bool(awb) if awb is not None else None,
+                exposure=int(exposure) if exposure is not None else None,
+                gain=float(gain) if gain is not None else None,
+            )
         except Exception as exc:
             raise HTTPException(status_code=500, detail=str(exc)) from exc
         return {"ok": True}
